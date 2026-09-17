@@ -47,13 +47,16 @@ final class CorePrincipalNormalizer
             throw new CoreIdentityDenied('Identity application code is invalid.');
         }
 
+        $roles = $this->roles->activeRoles($payload['roles'] ?? null);
         $programIds = $this->programIds($payload['program_ids'] ?? null);
         $approvedAlumniGrant = ($payload['eligibility_source'] ?? null) === 'alumni_admin_approval'
             && in_array('farmasi', $this->careerScopes($payload['career_scope'] ?? null), true);
         $allowedCoreProgram = $this->allowedProgramIds !== []
             && array_intersect($programIds, $this->allowedProgramIds) !== [];
+        $operationalRole = ($payload['eligibility_source'] ?? null) === 'core_operational_role'
+            && array_intersect($roles, ['admin-karir', 'petugas-karir', 'viewer-karir']) !== [];
 
-        if (! $approvedAlumniGrant && ! $allowedCoreProgram) {
+        if (! $approvedAlumniGrant && ! $allowedCoreProgram && ! $operationalRole) {
             throw new CoreIdentityDenied('Identity is outside the allowed study-program scope.');
         }
 
@@ -81,7 +84,7 @@ final class CorePrincipalNormalizer
             active: true,
             appCode: $appCode,
             hasAppAccess: true,
-            roles: $this->roles->activeRoles($payload['roles'] ?? null),
+            roles: $roles,
             programIds: $programIds,
             verifiedAt: $verifiedAt,
             synthetic: $synthetic,

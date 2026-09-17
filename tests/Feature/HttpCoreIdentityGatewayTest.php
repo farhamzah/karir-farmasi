@@ -164,6 +164,33 @@ class HttpCoreIdentityGatewayTest extends TestCase
         $this->assertSame([], $principal->programIds);
     }
 
+    public function test_core_operational_admin_role_allows_empty_program_profile(): void
+    {
+        $payload = $this->validPrincipal();
+        $payload['roles'] = [['slug' => 'admin-karir', 'active' => true]];
+        $payload['program_ids'] = [];
+        $payload['career_scope'] = ['farmasi'];
+        $payload['eligibility_source'] = 'core_operational_role';
+        Http::fake(['*' => Http::response(['principal' => $payload])]);
+
+        $principal = $this->gateway()->authenticate('synthetic-user', str_repeat('x', 24));
+
+        $this->assertSame(['admin-karir'], $principal->roles);
+        $this->assertSame([], $principal->programIds);
+    }
+
+    public function test_core_operational_source_without_operational_role_is_denied(): void
+    {
+        $payload = $this->validPrincipal();
+        $payload['program_ids'] = [];
+        $payload['career_scope'] = ['farmasi'];
+        $payload['eligibility_source'] = 'core_operational_role';
+        Http::fake(['*' => Http::response(['principal' => $payload])]);
+
+        $this->expectException(CoreIdentityDenied::class);
+        $this->gateway()->authenticate('synthetic-user', str_repeat('x', 24));
+    }
+
     public function test_legacy_endpoint_is_rejected_before_any_request_is_sent(): void
     {
         Http::fake();
