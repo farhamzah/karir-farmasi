@@ -1,0 +1,29 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\CareerProfile;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends Factory<CareerProfile>
+ */
+class CareerProfileFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'core_user_id' => fake()->unique()->uuid(),
+            'professional_name' => fake()->name(),
+            'headline' => 'Profesional Farmasi',
+            'professional_email' => fake()->unique()->safeEmail(),
+            'open_to_work' => false,
+            'profile_visibility' => 'private',
+        ];
+    }
+}

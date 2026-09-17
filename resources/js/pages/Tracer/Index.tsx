@@ -1,0 +1,7 @@
+import { Head, Link } from '@inertiajs/react';
+import AppHeader from '../../components/AppHeader';
+
+type Period={reference:string;title:string;cohort:string;ends_on:string;status:string};
+export default function Index({periods}:{periods:Period[]}){
+ return <><Head title="Tracer Study"/><main className="app-surface tracer-page"><AppHeader context="TRACER STUDY" nav={[{label:'← Dashboard',href:'/dashboard'},{label:'Tracer',href:'/tracer',active:true}]}/><section className="operational-shell"><header className="operational-hero"><div><p className="eyebrow">CERITA SETELAH LULUS</p><h1>Jejak alumni,<br/><em>dampak yang terukur.</em></h1><p>Isi sesuai keadaan Anda. Jawaban yang belum diketahui tetap dicatat sebagai belum diketahui, bukan dianggap tidak bekerja.</p></div><span className="metric-orb">{periods.length}<small>periode aktif</small></span></header><div className="tracer-period-grid">{periods.map(period=><article key={period.reference}><span className={`status-chip ${period.status}`}>{period.status.replaceAll('_',' ')}</span><small>ANGKATAN {period.cohort}</small><h2>{period.title}</h2><p>Batas respons {period.ends_on}</p><Link className="primary-button" href={`/tracer/${period.reference}`}>{period.status==='submitted'?'Lihat respons':'Mulai isi'} →</Link></article>)}</div>{!periods.length&&<div className="ds-empty-state"><span>◎</span><h2>Belum ada tracer aktif.</h2><p>Periode yang sesuai akan tampil di sini.</p></div>}</section></main></>;
+}

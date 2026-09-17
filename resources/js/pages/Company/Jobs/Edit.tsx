@@ -1,0 +1,4 @@
+import { Head } from '@inertiajs/react';
+import AppHeader from '../../../components/AppHeader';
+import JobForm, { type Existing } from '../../../components/JobForm';
+export default function CompanyJobEdit({job}:{job:Existing|null}){return <><Head title={job?'Edit Lowongan':'Buat Lowongan'}/><main className="job-page app-surface"><AppHeader context="EDITOR LOWONGAN" home="/company/dashboard" nav={[{label:'← Lowongan',href:'/company/jobs'}]}/><section className="job-shell narrow"><p className="eyebrow">PERUSAHAAN TERVERIFIKASI</p><h1>{job?'Perbarui lowongan':'Buka peluang baru.'}</h1><JobForm job={job} audience="company"/></section></main></>}

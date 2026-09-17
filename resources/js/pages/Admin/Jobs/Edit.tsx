@@ -1,0 +1,4 @@
+import { Head } from '@inertiajs/react';
+import AppHeader from '../../../components/AppHeader';
+import JobForm, { type Existing } from '../../../components/JobForm';
+export default function AdminJobEdit({job}:{job:Existing|null}){return <><Head title={job?'Edit Lowongan':'Input Lowongan Kampus'}/><main className="admin-page"><AppHeader context="EDITOR LOWONGAN KAMPUS" home="/staff" nav={[{label:'← Review lowongan',href:'/admin/jobs'}]} logout/><section className="job-shell narrow"><p className="eyebrow">SUMBER & KEPERCAYAAN</p><h1>{job?'Perbarui lowongan':'Input lowongan lintas sumber.'}</h1><p className="page-lead">Isi pemberi kerja dan bukti sumber secara jujur. Draft harus direview sebelum tampil kepada kandidat.</p><JobForm job={job} audience="admin"/></section></main></>}
