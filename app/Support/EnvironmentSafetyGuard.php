@@ -9,6 +9,7 @@ final class EnvironmentSafetyGuard
     private const ALLOWED_DATABASES = [
         'local' => ['safa_karir_dev'],
         'testing' => ['safa_karir_test'],
+        'production' => ['safa_karir_prod'],
     ];
 
     public static function assertIdentityDriver(string $environment, string $driver): void

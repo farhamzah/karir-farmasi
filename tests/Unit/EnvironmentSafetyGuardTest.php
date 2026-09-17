@@ -9,14 +9,15 @@ use PHPUnit\Framework\TestCase;
 
 class EnvironmentSafetyGuardTest extends TestCase
 {
-    public function test_known_local_and_testing_configuration_is_allowed(): void
+    public function test_known_environment_database_configuration_is_allowed(): void
     {
         EnvironmentSafetyGuard::assertIdentityDriver('local', 'fixture');
         EnvironmentSafetyGuard::assertIdentityDriver('testing', 'unavailable');
         EnvironmentSafetyGuard::assertDatabase('local', 'mysql', 'safa_karir_dev');
         EnvironmentSafetyGuard::assertDatabase('testing', 'mysql', 'safa_karir_test');
+        EnvironmentSafetyGuard::assertDatabase('production', 'mysql', 'safa_karir_prod');
 
-        $this->addToAssertionCount(4);
+        $this->addToAssertionCount(5);
     }
 
     #[DataProvider('unsafeIdentityConfigurations')]
@@ -50,7 +51,9 @@ class EnvironmentSafetyGuardTest extends TestCase
         return [
             'sqlite fallback' => ['testing', 'sqlite', ':memory:'],
             'Core database' => ['testing', 'mysql', 'core_farmasi'],
+            'Core database in production' => ['production', 'mysql', 'core_farmasi'],
             'dev database in tests' => ['testing', 'mysql', 'safa_karir_dev'],
+            'production database in local' => ['local', 'mysql', 'safa_karir_prod'],
             'unknown environment' => ['preview', 'mysql', 'safa_karir_test'],
         ];
     }

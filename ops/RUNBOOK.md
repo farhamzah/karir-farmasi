@@ -7,6 +7,7 @@ Runtime task berada di `E:\Aplikasi\farmasi-ubp-workspace\.runtime\karir` dan ti
 - MySQL: Community Server ZIP/no-install, bind `127.0.0.1:33079`, tanpa Windows service.
 - Database development: `safa_karir_dev`.
 - Database testing: `safa_karir_test`.
+- Database production: `safa_karir_prod`.
 - Credential hanya berada pada file runtime yang tidak dilacak Git.
 
 Jangan memakai PHP/MySQL XAMPP, Docker/WSL, database Core, atau schema di luar allowlist. Jangan menjalankan `migrate:fresh`, drop, atau truncate pada database selain `safa_karir_test`.
