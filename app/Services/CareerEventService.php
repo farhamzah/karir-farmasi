@@ -14,7 +14,7 @@ final class CareerEventService
     public function register(CareerEvent $event, CareerProfile $profile): CareerEventRegistration
     {
         if ($event->status !== 'published' || ($event->registration_opens_at && now()->isBefore($event->registration_opens_at))
-            || ($event->registration_closes_at && now()->isAfter($event->registration_closes_at))) {
+            || ($event->registration_closes_at && now()->isAfter($event->registration_closes_at)) || now()->gte($event->starts_at)) {
             throw ValidationException::withMessages(['event' => 'Pendaftaran event belum tersedia atau sudah ditutup.']);
         }
 

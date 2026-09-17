@@ -43,4 +43,16 @@ class EventDomainWorkflowTest extends TestCase
         $this->assertSame($certificate->id, app(CareerCertificateIssuer::class)->issue($registration->fresh(), $actor)->id);
         $this->assertDatabaseHas('audit_events', ['event_type' => 'event.completion.updated']);
     }
+
+    public function test_registration_is_rejected_after_the_event_has_started(): void
+    {
+        $event = CareerEvent::factory()->create([
+            'starts_at' => now()->subMinute(),
+            'ends_at' => now()->addHour(),
+            'registration_closes_at' => null,
+        ]);
+
+        $this->expectException(ValidationException::class);
+        app(CareerEventService::class)->register($event, CareerProfile::factory()->create());
+    }
 }

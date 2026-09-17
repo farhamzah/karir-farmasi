@@ -24,6 +24,7 @@ use App\Http\Controllers\Company\JobApplicantController;
 use App\Http\Controllers\CvShareLinkController;
 use App\Http\Controllers\EventCertificateController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventFlyerController;
 use App\Http\Controllers\EventRegistrationController;
 use App\Http\Controllers\InternalSessionController;
 use App\Http\Controllers\JobApplicationController;
@@ -74,6 +75,8 @@ Route::get('/', function () {
             'starts_at' => $event->starts_at->locale('id')->translatedFormat('d M Y'),
             'location' => $event->location_text,
             'topics' => $event->topics->pluck('label')->values()->all(),
+            'flyer_url' => $event->flyer_path ? route('event-flyers.show', $event) : null,
+            'flyer_alt_text' => $event->flyer_alt_text ?: 'Flyer '.$event->title,
         ])->all(),
         'opportunityCounts' => [
             'jobs' => (clone $jobs)->count(),
@@ -86,6 +89,9 @@ Route::get('/health', fn () => response()->json([
     'status' => 'ok',
     'core_identity' => config('core_identity.http.enabled') ? 'configured' : 'unavailable',
 ]))->name('health');
+
+Route::get('/event-flyers/{event:slug}', [EventFlyerController::class, 'show'])
+    ->middleware('throttle:60,1')->name('event-flyers.show');
 
 Route::get('/login', fn () => Inertia::render('Login', [
     'coreRecoveryUrl' => config('core_identity.recovery_url'),
@@ -264,6 +270,7 @@ Route::prefix('admin')->name('admin.')->middleware('core.principal')->group(func
         Route::get('/create', [App\Http\Controllers\Admin\EventController::class, 'create'])->middleware('career.can:'.CareerCapability::EventManage->value)->name('create');
         Route::post('/', [App\Http\Controllers\Admin\EventController::class, 'store'])->middleware('career.can:'.CareerCapability::EventManage->value)->name('store');
         Route::get('/{event}/edit', [App\Http\Controllers\Admin\EventController::class, 'edit'])->middleware('career.can:'.CareerCapability::EventManage->value)->name('edit');
+        Route::get('/{event}/flyer', [EventFlyerController::class, 'admin'])->middleware('career.can:'.CareerCapability::EventManage->value)->name('flyer');
         Route::put('/{event}', [App\Http\Controllers\Admin\EventController::class, 'update'])->middleware('career.can:'.CareerCapability::EventManage->value)->name('update');
         Route::put('/{event}/status', [App\Http\Controllers\Admin\EventController::class, 'status'])->middleware('career.can:'.CareerCapability::EventManage->value)->name('status');
         Route::get('/{event}/participants', [EventParticipantController::class, 'index'])->middleware('career.can:'.CareerCapability::EventParticipantManage->value)->name('participants');

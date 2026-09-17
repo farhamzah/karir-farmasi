@@ -13,9 +13,9 @@ class CareerEvent extends Model
     /** @use HasFactory<CareerEventFactory> */
     use HasFactory;
 
-    protected $fillable = ['title', 'slug', 'reference', 'event_type', 'organizer', 'description', 'starts_at', 'ends_at', 'location_type', 'location_text', 'capacity', 'registration_opens_at', 'registration_closes_at', 'status', 'certificate_enabled', 'created_by_core_user_id'];
+    protected $fillable = ['title', 'slug', 'reference', 'event_type', 'organizer', 'description', 'flyer_path', 'flyer_mime', 'flyer_alt_text', 'starts_at', 'ends_at', 'location_type', 'location_text', 'capacity', 'registration_opens_at', 'registration_closes_at', 'registration_notes', 'status', 'certificate_enabled', 'created_by_core_user_id'];
 
-    protected $hidden = ['created_by_core_user_id'];
+    protected $hidden = ['created_by_core_user_id', 'flyer_path'];
 
     protected function casts(): array
     {

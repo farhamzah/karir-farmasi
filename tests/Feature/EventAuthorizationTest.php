@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\CareerEvent;
 use App\Models\CareerProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class EventAuthorizationTest extends TestCase
@@ -41,6 +43,31 @@ class EventAuthorizationTest extends TestCase
         $this->assertSame('published', $event->fresh()->status);
         $this->withSession($session)->put(route('admin.events.status', $event), ['status' => 'closed'])->assertRedirect();
         $this->assertSame('closed', $event->fresh()->status);
+    }
+
+    public function test_admin_can_upload_a_flyer_that_is_public_only_for_a_published_event(): void
+    {
+        Storage::fake('career_private');
+        $session = ['core_principal' => $this->principal('admin-karir', 'admin')];
+        $payload = [
+            'title' => 'Seminar CPOB dan Halal', 'event_type' => 'seminar', 'organizer' => 'Farmasi UBP',
+            'description' => 'Kegiatan sintetis untuk pengujian flyer event.', 'flyer' => UploadedFile::fake()->image('flyer.webp', 900, 1200),
+            'flyer_alt_text' => 'Flyer Seminar CPOB dan Halal', 'starts_at' => now()->addWeek()->toDateTimeString(),
+            'ends_at' => now()->addWeek()->addHours(3)->toDateTimeString(), 'location_type' => 'onsite',
+            'location_text' => 'Kampus UBP', 'capacity' => 50, 'registration_opens_at' => now()->toDateTimeString(),
+            'registration_closes_at' => now()->addDays(5)->toDateTimeString(), 'registration_notes' => 'Bawa kartu identitas.',
+            'certificate_enabled' => true, 'topics' => ['CPOB', 'Halal'],
+        ];
+
+        $this->withSession($session)->post(route('admin.events.store'), $payload)->assertRedirect(route('admin.events.index'));
+        $event = CareerEvent::sole();
+        Storage::disk('career_private')->assertExists($event->flyer_path);
+        $this->get(route('event-flyers.show', $event))->assertNotFound();
+        $this->withSession($session)->get(route('admin.events.flyer', $event))->assertOk()->assertHeader('Cache-Control', 'no-store, private');
+
+        $event->update(['status' => 'published']);
+        $this->get(route('event-flyers.show', $event))->assertOk()->assertHeader('X-Content-Type-Options', 'nosniff');
+        $this->assertSame('Bawa kartu identitas.', $event->registration_notes);
     }
 
     private function principal(string $role, string $id): array
