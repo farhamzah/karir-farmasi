@@ -22,6 +22,33 @@ class LeadershipTalentScopeTest extends TestCase
                 ->has('results', 0));
     }
 
+    public function test_administrator_without_assignment_can_search_and_view_every_alumni_profile(): void
+    {
+        $visible = $this->profile('Alumni Terbuka', 'S1 Farmasi');
+        $hidden = $this->profile('Alumni Privat Internal', 'Profesi Apoteker', false);
+        $session = ['core_principal' => $this->principal('admin-001', ['admin-karir'])];
+
+        $this->withSession($session)->get(route('internal.talent.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('Talent/Search')
+                ->where('accessUnavailable', false)
+                ->where('scope', 'Seluruh alumni Farmasi UBP · akses administrator')
+                ->has('results', 2));
+
+        $this->withSession($session)->get(route('staff.overview'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('directoryAccess.available', true)
+                ->where('directoryAccess.scope', 'Seluruh alumni Farmasi UBP')
+                ->where('directoryAccess.role', 'Administrator SAFA KARIR'));
+
+        $this->withSession($session)->get(route('internal.talent.show', $visible->talent_reference))->assertOk();
+        $this->withSession($session)->get(route('internal.talent.show', $hidden->talent_reference))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->missing('profile.professional_email')
+                ->missing('profile.whatsapp')->missing('profile.core_user_id'));
+    }
+
     public function test_kaprodi_assignment_limits_results_to_its_program(): void
     {
         LeadershipAssignment::factory()->create(['actor_core_user_id' => 'leader-001', 'scope_reference' => 'S1 Farmasi', 'scope_label' => 'Scope: S1 Farmasi']);
@@ -76,10 +103,11 @@ class LeadershipTalentScopeTest extends TestCase
         return $profile->fresh();
     }
 
-    private function principal(string $id): array
+    /** @param list<string> $roles */
+    private function principal(string $id, array $roles = ['viewer-karir']): array
     {
         return ['issuer' => 'https://fixture.invalid', 'subject' => 'fixture:'.$id, 'core_user_id' => $id, 'display_name' => 'Pimpinan Sintetis',
-            'email' => null, 'active' => true, 'app_code' => 'karir-farmasi', 'has_app_access' => true, 'roles' => ['viewer-karir'],
+            'email' => null, 'active' => true, 'app_code' => 'karir-farmasi', 'has_app_access' => true, 'roles' => $roles,
             'program_ids' => ['farmasi-ubp'], 'verified_at' => '2026-09-12T00:00:00+07:00', 'synthetic' => true];
     }
 }

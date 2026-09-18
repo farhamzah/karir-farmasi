@@ -8,6 +8,7 @@ use App\Models\CompanyShortlist;
 use App\Models\CompanyUser;
 use App\Models\LeadershipAssignment;
 use App\Models\TalentProfileIndex;
+use App\Support\CareerRoleRegistry;
 use App\Talent\TalentAuditRecorder;
 use App\Talent\TalentSearchService;
 use Illuminate\Http\RedirectResponse;
@@ -37,23 +38,26 @@ class TalentSearchController extends Controller
     {
         /** @var CareerActor $actor */
         $actor = $request->attributes->get(CareerActor::class);
+        $isAdministrator = in_array(CareerRoleRegistry::Administrator, $actor->roles, true);
         $assignments = LeadershipAssignment::query()->where('actor_core_user_id', $actor->coreUserId)->where('active', true)
             ->where(fn ($query) => $query->whereNull('valid_from')->orWhere('valid_from', '<=', today()))
             ->where(fn ($query) => $query->whereNull('valid_until')->orWhere('valid_until', '>=', today()))->get();
         $filters = $this->filters($request);
-        if ($assignments->isEmpty()) {
+        if (! $isAdministrator && $assignments->isEmpty()) {
             return Inertia::render('Talent/Search', [
                 'audience' => 'internal', 'heading' => 'Direktori Talenta Farmasi — Internal',
                 'scope' => 'Lingkup akses belum ditetapkan oleh administrator SAFA KARIR.',
                 'filters' => $filters, 'results' => [], 'accessUnavailable' => true,
             ]);
         }
-        $results = $search->search($filters, 'internal', $assignments);
+        $results = $search->search($filters, 'internal', $assignments, $isAdministrator);
         $audit->search($actor, $filters, $results->count());
 
         return Inertia::render('Talent/Search', [
             'audience' => 'internal', 'heading' => 'Direktori Talenta Farmasi — Internal',
-            'scope' => $assignments->map(fn ($item) => $item->scope_label)->unique()->implode(', '), 'filters' => $filters,
+            'scope' => $isAdministrator
+                ? 'Seluruh alumni Farmasi UBP · akses administrator'
+                : $assignments->map(fn ($item) => $item->scope_label)->unique()->implode(', '), 'filters' => $filters,
             'results' => $results->map(fn ($index) => $this->card($index, $search, $filters, false))->all(),
             'accessUnavailable' => false,
         ]);

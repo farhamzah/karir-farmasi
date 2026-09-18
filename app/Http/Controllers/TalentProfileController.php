@@ -6,6 +6,7 @@ use App\Data\CareerActor;
 use App\Models\CareerProfile;
 use App\Models\CompanyUser;
 use App\Models\LeadershipAssignment;
+use App\Support\CareerRoleRegistry;
 use App\Talent\TalentAuditRecorder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -27,13 +28,16 @@ class TalentProfileController extends Controller
     {
         /** @var CareerActor $actor */
         $actor = $request->attributes->get(CareerActor::class);
+        $isAdministrator = in_array(CareerRoleRegistry::Administrator, $actor->roles, true);
         $assignments = LeadershipAssignment::query()->where('actor_core_user_id', $actor->coreUserId)->where('active', true)->get()->filter->isCurrent();
         $programs = $assignments->flatMap(fn (LeadershipAssignment $assignment) => $assignment->scope_type === 'faculty'
             ? ($assignment->program_references ?? [])
             : [$assignment->scope_reference])->filter()->unique();
-        abort_if($programs->isEmpty(), 403);
-        $profile = CareerProfile::query()->where('talent_reference', $reference)->where('discoverable_by_internal_leadership', true)
-            ->whereHas('educations', fn ($query) => $query->whereIn('program_name', $programs))->firstOrFail();
+        abort_if(! $isAdministrator && $programs->isEmpty(), 403);
+        $profile = CareerProfile::query()->where('talent_reference', $reference)
+            ->when(! $isAdministrator, fn ($query) => $query->where('discoverable_by_internal_leadership', true)
+                ->whereHas('educations', fn ($education) => $education->whereIn('program_name', $programs)))
+            ->firstOrFail();
         $audit->view($actor, $reference);
 
         return $this->render($profile, 'internal');

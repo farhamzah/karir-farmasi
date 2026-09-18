@@ -15,13 +15,15 @@ final class TalentSearchService
      * @param  Collection<int, LeadershipAssignment>|null  $assignments
      * @return Collection<int, TalentProfileIndex>
      */
-    public function search(array $filters, string $audience, ?Collection $assignments = null): Collection
+    public function search(array $filters, string $audience, ?Collection $assignments = null, bool $unrestrictedInternal = false): Collection
     {
         $query = TalentProfileIndex::query()->with('profile:id,talent_reference,discoverable_by_verified_companies,discoverable_by_internal_leadership');
         $flag = $audience === 'company' ? 'discoverable_by_verified_companies' : 'discoverable_by_internal_leadership';
-        $query->whereHas('profile', fn (Builder $builder) => $builder->where($flag, true));
+        if (! ($audience === 'internal' && $unrestrictedInternal)) {
+            $query->whereHas('profile', fn (Builder $builder) => $builder->where($flag, true));
+        }
 
-        if ($audience === 'internal') {
+        if ($audience === 'internal' && ! $unrestrictedInternal) {
             $programs = $assignments?->filter->isCurrent()->flatMap(fn (LeadershipAssignment $assignment) => $assignment->scope_type === 'faculty'
                 ? ($assignment->program_references ?? [])
                 : [$assignment->scope_reference])->filter()->unique()->values() ?? collect();
