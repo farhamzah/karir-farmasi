@@ -61,6 +61,15 @@ final class CurrentCareerActor
         }
 
         $roles = $this->roles->sessionRoles($principal['roles'] ?? null);
+        $activeRole = $request->session()->get('career_active_role');
+
+        if ($activeRole === null && count($roles) > 1) {
+            $roles = [];
+        } elseif ($activeRole !== null) {
+            $roles = is_string($activeRole) && in_array($activeRole, $roles, true)
+                ? [$activeRole]
+                : [];
+        }
 
         return new CareerActor(
             subject: $subject,

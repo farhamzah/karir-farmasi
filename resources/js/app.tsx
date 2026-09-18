@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
+import RoleSelection from './pages/RoleSelection';
 import Register from './pages/Register';
 import RegistrationStatus from './pages/RegistrationStatus';
 import RegistrationDetail from './pages/Admin/RegistrationDetail';
@@ -50,6 +51,7 @@ const pages = {
     Home,
     Dashboard,
     Login,
+    RoleSelection,
     Register,
     RegistrationStatus,
     'Admin/RegistrationDetail': RegistrationDetail,

@@ -22,7 +22,7 @@ class AuthorizationRouteBoundaryTest extends TestCase
         $this->app->instance(CoreAlumniGateway::class, $this->gateway);
     }
 
-    public function test_candidate_dashboard_requires_candidate_capability_and_supports_explicit_multi_role_union(): void
+    public function test_candidate_dashboard_requires_candidate_capability_and_an_active_multi_role_workspace(): void
     {
         $this->get(route('dashboard'))->assertRedirect(route('home'));
         $this->withSession(['core_principal' => $this->principal(['kandidat-karir'])])
@@ -30,7 +30,11 @@ class AuthorizationRouteBoundaryTest extends TestCase
         $this->withSession(['core_principal' => $this->principal(['admin-karir'])])
             ->get(route('dashboard'))->assertForbidden();
         $this->withSession(['core_principal' => $this->principal(['admin-karir', 'kandidat-karir'])])
-            ->get(route('dashboard'))->assertOk();
+            ->get(route('dashboard'))->assertForbidden();
+        $this->withSession([
+            'core_principal' => $this->principal(['admin-karir', 'kandidat-karir']),
+            'career_active_role' => 'kandidat-karir',
+        ])->get(route('dashboard'))->assertOk();
     }
 
     public function test_staff_overview_accepts_staff_and_viewer_but_rejects_candidate_only(): void

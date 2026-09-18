@@ -32,7 +32,10 @@ class ProfileAuthorizationTest extends TestCase
         $owner = CareerProfile::factory()->create(['core_user_id' => 'core-owner-a']);
         $skill = $owner->skills()->create(['name' => 'Rahasia Sintetis']);
 
-        $this->withSession(['core_principal' => $this->principal(['viewer-karir', 'kandidat-karir'], 'core-owner-b')])
+        $this->withSession([
+            'core_principal' => $this->principal(['viewer-karir', 'kandidat-karir'], 'core-owner-b'),
+            'career_active_role' => 'kandidat-karir',
+        ])
             ->get(route('profile.index'))->assertOk();
         $this->withSession(['core_principal' => $this->principal(['kandidat-karir'], 'core-owner-b')])
             ->post(route('profile.sections.update', ['section' => 'skills', 'record' => $skill->id]), ['name' => 'Spoof'])

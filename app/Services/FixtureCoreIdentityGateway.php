@@ -40,6 +40,7 @@ final class FixtureCoreIdentityGateway implements CoreIdentityGateway
 
         $staffFixtures = [
             'admin@fixture.invalid' => ['admin-001', 'Admin Karir Sintetis', 'admin-karir'],
+            'multi.role@fixture.invalid' => ['multi-role-001', 'Pengguna Multi Peran Sintetis', ['kandidat-karir', 'admin-karir']],
             'petugas@fixture.invalid' => ['petugas-001', 'Petugas Karir Sintetis', 'petugas-karir'],
             'viewer@fixture.invalid' => ['viewer-001', 'Viewer Karir Sintetis', 'viewer-karir'],
             'dekan@fixture.invalid' => ['dekan-001', 'Dekan Farmasi Sintetis', 'viewer-karir'],
@@ -71,6 +72,7 @@ final class FixtureCoreIdentityGateway implements CoreIdentityGateway
 
         if (isset($staffFixtures[$normalizedIdentifier])) {
             [$id, $displayName, $role] = $staffFixtures[$normalizedIdentifier];
+            $fixtureRoles = is_array($role) ? $role : [$role];
 
             return new CorePrincipal(
                 issuer: 'https://fixture.invalid',
@@ -81,7 +83,7 @@ final class FixtureCoreIdentityGateway implements CoreIdentityGateway
                 active: true,
                 appCode: 'karir-farmasi',
                 hasAppAccess: true,
-                roles: [$role],
+                roles: $fixtureRoles,
                 programIds: ['farmasi-ubp'],
                 verifiedAt: new DateTimeImmutable('2026-09-11T00:00:00+07:00'),
                 synthetic: true,

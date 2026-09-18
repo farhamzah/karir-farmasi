@@ -9,6 +9,7 @@ use App\Contracts\CoreIdentityGateway;
 use App\Exceptions\CoreIdentityDenied;
 use App\Exceptions\CoreIdentityUnavailable;
 use App\Services\FixtureCoreIdentityGateway;
+use App\Support\CareerRoleRegistry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -20,13 +21,14 @@ class InternalSessionController extends Controller
         CoreIdentityGateway $identity,
         CurrentCareerActor $currentActor,
         CareerAuthorization $authorization,
+        CareerRoleRegistry $roles,
     ): RedirectResponse|Response {
         $credentials = $request->validate([
             'identifier' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'max:4096'],
         ]);
 
-        $request->session()->forget('core_principal');
+        $request->session()->forget(['core_principal', 'career_active_role']);
 
         try {
             $principal = $identity->authenticate($credentials['identifier'], $credentials['password']);
@@ -57,6 +59,13 @@ class InternalSessionController extends Controller
 
         $request->session()->regenerate();
         $request->session()->put('core_principal', $principal->toSessionArray());
+        $availableRoles = $roles->sessionRoles($principal->roles);
+
+        if (count($availableRoles) > 1) {
+            return redirect()->route('role-selection.show');
+        }
+
+        $request->session()->put('career_active_role', $availableRoles[0]);
         $actor = $currentActor->fromRequest($request);
 
         if ($authorization->allows($actor, CareerCapability::CandidateDashboardView)) {
@@ -72,7 +81,7 @@ class InternalSessionController extends Controller
 
     public function destroy(Request $request): RedirectResponse
     {
-        $request->session()->forget('core_principal');
+        $request->session()->forget(['core_principal', 'career_active_role']);
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

@@ -22,6 +22,30 @@ final class CareerRoleRegistry
         self::Viewer,
     ];
 
+    /** @var array<string, array{label: string, eyebrow: string, description: string}> */
+    private const PRESENTATION = [
+        self::Candidate => [
+            'label' => 'Alumni / Kandidat',
+            'eyebrow' => 'RUANG KARIER PRIBADI',
+            'description' => 'Kelola profil, CV, lowongan, event, lamaran, dan tracer Anda.',
+        ],
+        self::Administrator => [
+            'label' => 'Administrator SAFA KARIR',
+            'eyebrow' => 'KENDALI PLATFORM',
+            'description' => 'Kelola pengguna, perusahaan, konten, lowongan, dan operasional platform.',
+        ],
+        self::Officer => [
+            'label' => 'Petugas Karier',
+            'eyebrow' => 'LAYANAN OPERASIONAL',
+            'description' => 'Jalankan layanan alumni dan karier sesuai kewenangan yang diberikan.',
+        ],
+        self::Viewer => [
+            'label' => 'Pimpinan / Viewer',
+            'eyebrow' => 'RINGKASAN TERLINGKUP',
+            'description' => 'Lihat ringkasan, direktori, dan laporan sesuai lingkup penugasan.',
+        ],
+    ];
+
     /** @return list<string> */
     public function activeRoles(mixed $roles): array
     {
@@ -64,5 +88,17 @@ final class CareerRoleRegistry
         }
 
         return array_values(array_unique($normalized));
+    }
+
+    /**
+     * @param  list<string>  $roles
+     * @return list<array{slug: string, label: string, eyebrow: string, description: string}>
+     */
+    public function options(array $roles): array
+    {
+        return array_map(fn (string $role): array => [
+            'slug' => $role,
+            ...self::PRESENTATION[$role],
+        ], $this->sessionRoles($roles));
     }
 }

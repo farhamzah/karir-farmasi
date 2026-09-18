@@ -32,6 +32,7 @@ class InternalSessionLifecycleTest extends TestCase
 
         $response->assertRedirect(route('dashboard'));
         $response->assertSessionHas('core_principal.subject', 'fixture:alumni-001');
+        $response->assertSessionHas('career_active_role', 'kandidat-karir');
         $this->assertNotSame($previousId, session()->getId());
 
         $sessionPrincipal = session('core_principal');
@@ -105,11 +106,86 @@ class InternalSessionLifecycleTest extends TestCase
         Http::preventStrayRequests();
         $principal = (new FixtureCoreIdentityGateway('testing'))->currentPrincipal()->toSessionArray();
 
-        $response = $this->withSession(['core_principal' => $principal])
+        $response = $this->withSession([
+            'core_principal' => $principal,
+            'career_active_role' => 'kandidat-karir',
+        ])
             ->delete(route('internal-session.destroy'));
 
         $response->assertRedirect(route('home'));
         $response->assertSessionMissing('core_principal');
+        $response->assertSessionMissing('career_active_role');
         Http::assertNothingSent();
+    }
+
+    public function test_multi_role_login_requires_workspace_selection(): void
+    {
+        $gateway = new FixtureCoreIdentityGateway('testing');
+        $this->app->instance(CoreIdentityGateway::class, $gateway);
+
+        $response = $this->post(route('internal-session.store'), [
+            'identifier' => 'multi.role@fixture.invalid',
+            'password' => str_repeat('m', 24),
+        ]);
+
+        $response->assertRedirect(route('role-selection.show'));
+        $response->assertSessionHas('core_principal.roles', ['kandidat-karir', 'admin-karir']);
+        $response->assertSessionMissing('career_active_role');
+    }
+
+    public function test_multi_role_user_can_choose_and_switch_workspace(): void
+    {
+        $principal = (new FixtureCoreIdentityGateway('testing'))
+            ->authenticate('multi.role@fixture.invalid', str_repeat('m', 24))
+            ->toSessionArray();
+
+        $this->withSession(['core_principal' => $principal])
+            ->get(route('role-selection.show'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('RoleSelection')
+                ->has('roles', 2)
+                ->where('activeRole', null));
+
+        $this->withSession(['core_principal' => $principal])
+            ->post(route('role-selection.store'), ['role' => 'kandidat-karir'])
+            ->assertRedirect(route('dashboard'))
+            ->assertSessionHas('career_active_role', 'kandidat-karir');
+
+        $this->withSession([
+            'core_principal' => $principal,
+            'career_active_role' => 'kandidat-karir',
+        ])->post(route('role-selection.store'), ['role' => 'admin-karir'])
+            ->assertRedirect(route('admin.registrations.index'))
+            ->assertSessionHas('career_active_role', 'admin-karir');
+    }
+
+    public function test_role_selection_rejects_role_not_granted_by_core(): void
+    {
+        $principal = (new FixtureCoreIdentityGateway('testing'))
+            ->authenticate('multi.role@fixture.invalid', str_repeat('m', 24))
+            ->toSessionArray();
+
+        $this->withSession(['core_principal' => $principal])
+            ->post(route('role-selection.store'), ['role' => 'viewer-karir'])
+            ->assertSessionHasErrors('role')
+            ->assertSessionMissing('career_active_role');
+    }
+
+    public function test_active_workspace_limits_capabilities_to_selected_role(): void
+    {
+        $principal = (new FixtureCoreIdentityGateway('testing'))
+            ->authenticate('multi.role@fixture.invalid', str_repeat('m', 24))
+            ->toSessionArray();
+
+        $this->withSession([
+            'core_principal' => $principal,
+            'career_active_role' => 'kandidat-karir',
+        ])->get(route('admin.registrations.index'))->assertForbidden();
+
+        $this->withSession([
+            'core_principal' => $principal,
+            'career_active_role' => 'admin-karir',
+        ])->get(route('dashboard'))->assertForbidden();
     }
 }

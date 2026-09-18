@@ -17,6 +17,7 @@ use App\Http\Controllers\CareerCvDuplicateController;
 use App\Http\Controllers\CareerCvExportController;
 use App\Http\Controllers\CareerCvPreviewController;
 use App\Http\Controllers\CareerCvPublishController;
+use App\Http\Controllers\CareerRoleSelectionController;
 use App\Http\Controllers\Company\CompanyAuthController;
 use App\Http\Controllers\Company\CompanyDashboardController;
 use App\Http\Controllers\Company\CompanyRecruiterController;
@@ -104,6 +105,10 @@ Route::post('/internal/session', [InternalSessionController::class, 'store'])
     ->middleware('throttle:10,1')->name('internal-session.store');
 Route::delete('/internal/session', [InternalSessionController::class, 'destroy'])
     ->name('internal-session.destroy');
+Route::middleware('core.principal')->group(function () {
+    Route::get('/pilih-role', [CareerRoleSelectionController::class, 'show'])->name('role-selection.show');
+    Route::post('/pilih-role', [CareerRoleSelectionController::class, 'store'])->name('role-selection.store');
+});
 
 Route::prefix('company')->name('company.')->group(function () {
     Route::get('/register', [CompanyAuthController::class, 'create'])->name('register');
