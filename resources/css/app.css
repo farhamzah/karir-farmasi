@@ -279,7 +279,8 @@ input:focus,textarea:focus { outline:2px solid #90b7a4; border-color:#1f6b4f; }
 .home-v2 { --hv2-green:#063f35; --hv2-accent:#168f6c; --hv2-mint:#e6f5ee; --hv2-cream:#f8faf7; --hv2-ink:#082f29; color:var(--hv2-ink); background:#fff; font-family:Inter,"Segoe UI",sans-serif; scroll-behavior:smooth; }
 .home-v2 * { box-sizing:border-box; }
 .home-v2 a { text-decoration:none; }
-.home-v2-header { position:relative; z-index:20; height:86px; max-width:1440px; margin:auto; padding:0 clamp(24px,5vw,72px); display:grid; grid-template-columns:260px 1fr auto; align-items:center; gap:28px; background:rgba(255,255,255,.97); border-bottom:1px solid #e7eeea; }
+.home-v2-header { position:sticky; top:0; z-index:100; height:86px; max-width:1440px; margin:auto; padding:0 clamp(24px,5vw,72px); display:grid; grid-template-columns:260px 1fr auto; align-items:center; gap:28px; background:rgba(255,255,255,.97); border-bottom:1px solid #e7eeea; box-shadow:0 8px 28px rgba(7,57,46,.07); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }
+.home-v2 #fitur,.home-v2 #lowongan,.home-v2 #event,.home-v2 #alumni,.home-v2 #tentang { scroll-margin-top:106px; }
 .home-v2-header .brand { width:max-content; }
 .home-v2-header nav { display:flex; align-items:center; justify-content:center; gap:clamp(18px,2.2vw,35px); }
 .home-v2-header nav a { position:relative; padding:31px 0 28px; color:#39564f; font-size:14px; font-weight:700; }
