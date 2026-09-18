@@ -1,6 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
-import AppHeader from '../../components/AppHeader';
+import { CompanyHeader, StaffHeader } from '../../components/RoleHeader';
 import { EmptyState } from '../../components/Ui';
 
 type Card = { reference:string; professional_name:string; headline:string|null; city:string|null; education:string; skills:string[]; experience:string[]; badges:string[]; open_to_work:boolean; last_confirmed_at:string|null; matched:string[]; shortlisted:boolean };
@@ -29,7 +29,9 @@ export default function Search({ audience, heading, scope, filters, results, acc
     const submit = () => router.get(base, state, { preserveState: true });
 
     return <><Head title="Talent Search"/><main className={'talent-page app-surface '+audience}>
-        <AppHeader context={audience === 'company' ? 'TALENT SEARCH' : 'DIREKTORI INTERNAL'} home={audience === 'company' ? '/company/dashboard' : '/staff'} nav={[{label:'Dashboard', href:audience === 'company' ? '/company/dashboard' : '/staff'}, {label:'Direktori Talenta', href:base, active:true}]}/>
+        {audience === 'company'
+            ? <CompanyHeader context="TALENT SEARCH" active="talent" />
+            : <StaffHeader context="DIREKTORI INTERNAL" active="talent" />}
         <section className="talent-hero"><p className="eyebrow">{accessUnavailable?'AKSES DIREKTORI':'PENCARIAN TERSTRUKTUR'}</p><h1>{heading}</h1><p>{scope}</p>{!accessUnavailable&&<div className="talent-searchbar"><input aria-label="Cari talenta" value={state.q} onChange={e => setState({...state, q:e.target.value})} placeholder="CPOB, QA, RS, Halal, Regulatory…" onKeyDown={e => e.key === 'Enter' && submit()}/><button className="primary-button" onClick={submit}>Cari</button><button className="secondary-button filter-toggle" onClick={() => setDrawer(!drawer)}>Filter</button></div>}</section>
         {accessUnavailable?<section className="talent-access-empty"><span>!</span><div><h2>Lingkup alumni belum ditentukan</h2><p>Administrator SAFA KARIR perlu menautkan akun Anda ke program studi atau fakultas. Setelah itu, menu ini otomatis menampilkan kandidat yang memberi izin internal.</p><Link className="secondary-button" href="/staff">Kembali ke ringkasan</Link></div></section>:
         <section className="talent-layout"><aside className={drawer ? 'filter-panel open' : 'filter-panel'}><div><h2>Filter kandidat</h2><button className="filter-close" onClick={() => setDrawer(false)}>×</button></div>

@@ -1,6 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
-import AppHeader from '../../components/AppHeader';
+import { StaffHeader } from '../../components/RoleHeader';
 import { EmptyState } from '../../components/Ui';
 
 type Item = { reference: string; full_name: string; student_number: string; status: string; created_at?: string };
@@ -9,7 +9,7 @@ export default function Registrations({ registrations, activeStatus, loadError }
     const [query, setQuery] = useState('');
     const filtered = useMemo(() => registrations.filter(item => `${item.full_name} ${item.student_number} ${item.reference}`.toLowerCase().includes(query.toLowerCase())), [registrations, query]);
     return <><Head title="Verifikasi Alumni" /><main className="admin-page app-surface">
-        <AppHeader context="LAYANAN FARMASI" home="/staff" nav={[{ label: 'Overview', href: '/staff' }, { label: 'Registrasi', href: '/admin/registrations', active: true }, { label: 'Template CV', href: '/admin/cv-templates' }]} logout />
+        <StaffHeader context="LAYANAN FARMASI" active="registrations" />
         <section className="admin-content"><div className="admin-page-heading"><div><p className="eyebrow">REGISTRASI ALUMNI</p><h1 className="page-title">Antrean verifikasi.</h1><p className="page-lead">Tinjau data minimum alumni dan ambil keputusan sesuai capability Anda.</p></div><div className="queue-summary"><small>STATUS AKTIF</small><strong>{activeStatus.replace('_', ' ')}</strong><span>{registrations.length} pendaftaran</span></div></div>
             <div className="queue-tools"><div className="filter-row">{['pending', 'manual_review', 'approved', 'rejected'].map((status) => <Link className={activeStatus === status ? 'active' : ''} href={`/admin/registrations?status=${status}`} key={status}>{status.replace('_', ' ')}</Link>)}</div><label className="search-field"><span aria-hidden="true">⌕</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Cari nama, NIM, atau referensi" aria-label="Cari registrasi" /></label></div>
             {loadError && <div className="alert error"><strong>Data registrasi belum dapat dimuat.</strong><br />Layanan data alumni belum tersedia di lingkungan ini. Coba kembali setelah koneksi layanan aktif.</div>}

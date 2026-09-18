@@ -1,6 +1,6 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import type { TemplateConfiguration } from '../../Cv/CvPaper';
-import AppHeader from '../../../components/AppHeader';
+import { StaffHeader } from '../../../components/RoleHeader';
 
 type Template = { id: number; key: string; name: string; description: string; active: boolean; current_version: string | null; usage_count: number; has_draft: boolean };
 type Version = { id: number; version: string; status: string; usage_count: number; published_at: string | null };
@@ -11,7 +11,7 @@ export default function TemplateEdit({ template, draft, editableConfiguration, a
     const form = useForm({ name: template.name, description: template.description, configuration: editableConfiguration });
     const duplicate = useForm({ key: `${template.key}-copy` });
     const setConfig = <K extends keyof TemplateConfiguration>(key: K, value: TemplateConfiguration[K]) => form.setData('configuration', { ...form.data.configuration, [key]: value });
-    return <><Head title={`Kelola ${template.name}`} /><main className="admin-page app-surface"><AppHeader context="EDITOR TEMPLATE" home="/admin/cv-templates" nav={[{ label: '← Semua template', href: '/admin/cv-templates' }, { label: 'Registrasi', href: '/admin/registrations' }]} />
+    return <><Head title={`Kelola ${template.name}`} /><main className="admin-page app-surface"><StaffHeader context="EDITOR TEMPLATE" active="templates" />
         <section className="admin-content template-edit-shell"><div className="cv-title-row"><div><p className="eyebrow">{template.key} · {template.active ? 'AKTIF' : 'PENSIUN'}</p><h1 className="page-title">{template.name}</h1><p className="page-lead">Versi terbit saat ini {template.current_version ?? 'belum ada'} dan digunakan oleh {template.usage_count} CV. Perubahan baru disimpan sebagai draf.</p></div><Link className="secondary-button" href={`/admin/cv-templates/${template.id}/preview`}>Preview fixture</Link></div>
         {flash?.success && <div className="alert success">{flash.success}</div>}
         <div className="template-edit-grid"><form className="profile-form-card" onSubmit={event => { event.preventDefault(); form.put(`/admin/cv-templates/${template.id}`); }}><h2>Token visual aman</h2><div className="form-grid"><label>Nama<input value={form.data.name} onChange={event => form.setData('name', event.target.value)} /></label><label className="form-wide">Deskripsi<textarea value={form.data.description} onChange={event => form.setData('description', event.target.value)} /></label>{(Object.keys(allowed) as (keyof TemplateConfiguration)[]).map(key => <label key={key}>{key.replace('_', ' ')}<select value={form.data.configuration[key]} onChange={event => setConfig(key, event.target.value as TemplateConfiguration[typeof key])}>{allowed[key].map(value => <option value={value} key={value}>{value}</option>)}</select></label>)}</div>{Object.keys(form.errors).length > 0 && <div className="alert error">Hanya token allowlist lengkap yang dapat disimpan.</div>}<button className="primary-button" disabled={form.processing}>Simpan sebagai draf</button></form>

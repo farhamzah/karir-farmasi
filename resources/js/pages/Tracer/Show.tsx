@@ -1,5 +1,6 @@
 import { Form, Head } from '@inertiajs/react';
 import AppHeader from '../../components/AppHeader';
+import { candidateNav } from '../../components/CandidateNav';
 
 type Question = { id:string; label:string; type:'text'|'textarea'|'select'|'number'|'date'; required:boolean; options?:string[] };
 type Submission = { status:string; answers:Record<string,string|number>; prefill:Record<string,string|number> };
@@ -7,7 +8,7 @@ type Submission = { status:string; answers:Record<string,string|number>; prefill
 export default function Show({ period, version, questions, submission }:{ period:{reference:string;title:string;cohort:string}; version:number; questions:Question[]; submission:Submission }) {
     const locked = submission.status === 'submitted';
     return <><Head title={period.title}/><main className="app-surface tracer-page">
-        <AppHeader context="TRACER STUDY" nav={[{label:'← Semua periode',href:'/tracer'}]}/>
+        <AppHeader context="TRACER STUDY" nav={candidateNav('tracer')} logout/>
         <section className="operational-shell narrow">
             <header className="form-hero"><p className="eyebrow">ANGKATAN {period.cohort} · VERSI {version}</p><h1>{period.title}</h1><p>Data profil yang jelas hanya dipakai sebagai prefill. Respons terkirim menjadi snapshot dan tidak berubah saat profil diedit.</p></header>
             <Form action={'/tracer/' + period.reference} method="put" className="tracer-form">

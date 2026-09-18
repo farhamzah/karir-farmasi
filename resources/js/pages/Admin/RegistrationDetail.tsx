@@ -1,5 +1,5 @@
 import { Head, useForm, usePage } from '@inertiajs/react';
-import AppHeader from '../../components/AppHeader';
+import { StaffHeader } from '../../components/RoleHeader';
 import type { FormEvent } from 'react';
 
 type Registration = Record<string, string | number | null>;
@@ -13,7 +13,7 @@ export default function RegistrationDetail({ registration, canApprove, canReject
 
     const staffLabel = page.props.auth?.actor?.roles.includes('admin-karir') ? 'Admin Karir' : 'Petugas Karir';
 
-    return <><Head title="Detail Verifikasi" /><main className="admin-page app-surface"><AppHeader context="DETAIL VERIFIKASI" home="/staff" nav={[{ label: '← Antrean', href: '/admin/registrations' }, { label: 'Overview', href: '/staff' }]} actions={<span className="status-dot">{staffLabel}</span>} />
+    return <><Head title="Detail Verifikasi" /><main className="admin-page app-surface"><StaffHeader context="DETAIL VERIFIKASI" active="registrations" actions={<span className="status-dot">{staffLabel}</span>} />
         <section className="admin-content detail-layout"><div><p className="eyebrow">DETAIL PENDAFTARAN</p><h1 className="page-title">{registration.full_name}</h1><code>{registration.reference}</code>
             {page.props.flash?.success && <div className="alert success">{page.props.flash.success}</div>}
             {page.props.errors?.decision && <div className="alert error">{page.props.errors.decision}</div>}

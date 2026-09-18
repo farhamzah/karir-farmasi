@@ -1,5 +1,5 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import AppHeader from '../../../components/AppHeader';
+import { StaffHeader } from '../../../components/RoleHeader';
 
 type Template = { id: number; key: string; name: string; description: string; active: boolean; current_version: string | null; usage_count: number; has_draft: boolean; display_order: number; updated_at: string };
 type BaseTemplate = { key: string; name: string };
@@ -14,7 +14,7 @@ export default function TemplateIndex({ templates, baseTemplates }: { templates:
         router.put('/admin/cv-templates/order', { templates: next.map((template, order) => ({ id: template.id, display_order: (order + 1) * 10 })) });
     };
 
-    return <><Head title="Template CV" /><main className="admin-page app-surface"><AppHeader context="STUDIO TEMPLATE" home="/staff" nav={[{ label: 'Overview', href: '/staff' }, { label: 'Registrasi', href: '/admin/registrations' }, { label: 'Template CV', href: '/admin/cv-templates', active: true }]} logout />
+    return <><Head title="Template CV" /><main className="admin-page app-surface"><StaffHeader context="STUDIO TEMPLATE" active="templates" />
         <section className="admin-content template-admin-shell"><div className="cv-title-row"><div><p className="eyebrow">ADMIN TEMPLATE CV</p><h1 className="page-title">Kurasi tampilan<br /><em>yang siap berkarya.</em></h1><p className="page-lead">Kelola identitas visual melalui token aman. Setiap publikasi menjadi versi tetap agar CV alumni tidak berubah diam-diam.</p></div><span className="safe-badge">Tanpa kode mentah</span></div>
         {flash?.success && <div className="alert success">{flash.success}</div>}
         <div className="template-admin-grid">{templates.map((template, index) => <article className="template-admin-card" key={template.id}><div className={`template-miniature ${template.key}`}><i /><b /><em /></div><div><span className={`status-pill ${template.active ? 'active' : 'retired'}`}>{template.active ? 'Aktif' : 'Pensiun'}</span><code>{template.key}</code><h2>{template.name}</h2><p>{template.description}</p><small>v{template.current_version ?? '—'} · {template.usage_count} CV · {template.has_draft ? 'ada draf' : 'tanpa draf'}</small></div><div className="template-card-actions"><Link href={`/admin/cv-templates/${template.id}`}>Kelola</Link><Link href={`/admin/cv-templates/${template.id}/preview`}>Preview</Link><button onClick={() => move(index, -1)} disabled={index === 0}>↑</button><button onClick={() => move(index, 1)} disabled={index === templates.length - 1}>↓</button></div></article>)}</div>

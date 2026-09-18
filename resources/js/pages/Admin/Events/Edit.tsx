@@ -1,6 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
-import AppHeader from '../../../components/AppHeader';
+import { StaffHeader } from '../../../components/RoleHeader';
 
 type EventForm = {
     id?: number;
@@ -56,7 +56,7 @@ export default function Edit({ event }: { event: EventForm | null }) {
     };
 
     return <><Head title={event ? 'Edit Event' : 'Buat Event'} /><main className="admin-page app-surface">
-        <AppHeader context="EDITOR EVENT" home="/admin/events" nav={[{ label: 'Daftar Event', href: '/admin/events' }]} logout />
+        <StaffHeader context="EDITOR EVENT" active="events" />
         <section className="admin-content event-shell">
             <header className="event-list-heading"><div><p className="eyebrow">PUBLIKASI KEGIATAN</p><h1>{event ? 'Edit event' : 'Buat event baru'}.</h1><p>Lengkapi informasi yang dibutuhkan alumni sebelum mendaftar. Event baru selalu disimpan sebagai draft.</p></div></header>
             <form className="profile-form-card event-form" onSubmit={submit}>

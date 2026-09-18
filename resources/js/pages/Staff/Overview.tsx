@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import AppHeader from '../../components/AppHeader';
+import { useStaffNav } from '../../components/RoleNavigation';
 import { ReadOnlyBanner } from '../../components/Ui';
 
 type Actor = { display_name: string; roles: string[]; capabilities: string[] };
@@ -22,11 +23,7 @@ const detailMetrics: [keyof Summary, string][] = [
 export default function Overview({ actor, summary, directoryAccess }: { actor:Actor; summary:Summary; directoryAccess:DirectoryAccess }) {
     const admin = actor.capabilities.includes('tracer.manage');
     const viewer = actor.roles.includes('viewer-karir');
-    const nav = [
-        { label: 'Ringkasan', href: '/staff', active: true },
-        ...(admin ? [{ label: 'Tracer', href: '/admin/tracer' }, { label: 'Import Lowongan', href: '/admin/jobs/import' }] : []),
-        ...(directoryAccess.available ? [{ label: 'Talenta Internal', href: '/internal/talent' }] : []),
-    ];
+    const nav = useStaffNav('overview');
 
     return <><Head title="Dashboard Operasional"/><main className="admin-page app-surface"><AppHeader context="OPERASIONAL KARIER" home="/staff" nav={nav} logout/>
         <section className="operational-shell staff-overview-shell">

@@ -1595,3 +1595,33 @@ input,textarea,select { min-height:45px;border:1px solid #cbd6d0;border-radius:9
 @media(max-width:620px){.header-action-group{align-items:stretch;flex-direction:column}.job-entry-methods,.job-flyer-input{grid-template-columns:1fr}.job-flyer-input{padding:19px}.job-card-flyer{height:230px}.import-choice-note{grid-template-columns:1fr}.import-choice-note .primary-button{grid-column:auto;grid-row:auto}.job-detail-flyer{margin-inline:-12px}}
 /* Keep flyer cards edge-to-edge after the base job card rule below. */
 .job-card{padding:0}
+
+/* Role-aware application navigation */
+.app-nav-group{position:relative}
+.app-nav-group>summary{display:flex;align-items:center;gap:6px;padding:9px 12px;border-radius:8px;color:#65766e;cursor:pointer;font-size:11px;font-weight:700;list-style:none;white-space:nowrap}
+.app-nav-group>summary::-webkit-details-marker{display:none}
+.app-nav-group>summary span{font-size:12px;transition:transform .18s ease}
+.app-nav-group[open]>summary span{transform:rotate(180deg)}
+.app-nav-group>summary:hover,.app-nav-group.active>summary,.app-nav-group[open]>summary{background:var(--sk-50);color:var(--sk-800)}
+.app-nav-group.active>summary::after{content:"";position:absolute;left:12px;right:12px;bottom:4px;height:2px;border-radius:4px;background:var(--sk-600)}
+.app-nav-popover{position:absolute;z-index:80;top:calc(100% + 9px);left:50%;width:max-content;min-width:210px;display:grid;gap:3px;padding:8px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.98);box-shadow:0 18px 45px rgba(17,54,43,.16);transform:translateX(-50%)}
+.app-nav-popover::before{content:"";position:absolute;top:-10px;left:0;right:0;height:10px}
+.app-nav-popover a{display:block;padding:10px 12px;border-radius:8px;font-size:10px}
+.app-nav-popover a.active{background:#e7f1eb;color:var(--sk-900)}
+.app-nav-popover a.active::after{display:none}
+.app-menu-toggle{display:none;min-width:48px;min-height:44px;place-items:center;padding:5px 9px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--sk-900)}
+.app-menu-toggle span{font-size:18px;line-height:1}
+.app-menu-toggle small{font-size:7px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+
+@media(max-width:700px){
+    .app-header{align-items:center}
+    .app-menu-toggle{order:2;display:grid;margin-left:auto}
+    .app-header-actions{order:3;margin-left:0}
+    .app-header-actions .ghost-button{min-height:44px;padding:8px 12px}
+    .app-nav{order:4!important;width:100%;display:none!important;align-items:stretch;flex-direction:column;gap:3px;overflow:visible!important;padding:10px 0 2px!important;border-top:1px solid var(--line)}
+    .app-nav.is-open{display:flex!important}
+    .app-nav>a,.app-nav>.app-nav-soon,.app-nav-group>summary{width:100%;min-height:42px;display:flex;align-items:center;justify-content:space-between;padding:10px 12px!important}
+    .app-nav a.active::after,.app-nav-group.active>summary::after{left:12px;right:auto;bottom:7px;width:30px}
+    .app-nav-popover{position:static;width:100%;min-width:0;margin:3px 0 7px;padding:4px 6px 4px 16px;border:0;border-left:2px solid #c6dbd0;border-radius:0;background:transparent;box-shadow:none;transform:none}
+    .app-nav-popover a{min-height:40px;padding:10px 12px!important;background:rgba(255,255,255,.7)}
+}
