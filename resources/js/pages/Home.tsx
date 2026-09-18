@@ -1,67 +1,73 @@
-import { Head, Link } from '@inertiajs/react';
+import { FormEvent, useState } from 'react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import Brand from '../components/Brand';
 
-type Job = {
-    reference: string;
-    title: string;
-    employer: string;
-    city: string | null;
-    work_mode: string;
-    employment_type: string;
-    expires_at: string | null;
-    tags: string[];
-};
+type Job = { reference: string; title: string; employer: string; city: string | null; work_mode: string; employment_type: string; expires_at: string | null; tags: string[] };
+type Event = { slug: string; title: string; organizer: string; event_type: string; starts_at: string; location: string | null; topics: string[]; flyer_url: string | null; flyer_alt_text: string };
+type Actor = { display_name: string; roles: string[]; capabilities: string[] };
+type HomeProps = { identityStatus: 'unavailable' | 'connected'; environmentLabel: string | null; jobs: Job[]; events: Event[]; opportunityCounts: { jobs: number; events: number } };
+type SharedProps = { auth?: { actor?: Actor } };
 
-type Event = {
-    slug: string;
-    title: string;
-    organizer: string;
-    event_type: string;
-    starts_at: string;
-    location: string | null;
-    topics: string[];
-    flyer_url: string | null;
-    flyer_alt_text: string;
-};
-
-type HomeProps = {
-    identityStatus: 'unavailable' | 'connected';
-    environmentLabel: string | null;
-    jobs: Job[];
-    events: Event[];
-    opportunityCounts: { jobs: number; events: number };
-};
-
-const benefits = [
-    { icon: '01', title: 'Profil profesional', text: 'Simpan pendidikan, pengalaman, kompetensi, event, dan karya dalam satu profil yang Anda kendalikan.' },
-    { icon: '02', title: 'CV yang siap bergerak', text: 'Susun beberapa CV dari satu profil, pilih lima template, lalu publikasikan versi yang paling relevan.' },
-    { icon: '03', title: 'Peluang tepercaya', text: 'Temukan lowongan dan agenda pengembangan karier yang dikurasi untuk ekosistem Farmasi UBP.' },
+const featureCards = [
+    ['↗', 'Lowongan kerja', 'Temukan peluang yang dikurasi untuk talenta farmasi.'],
+    ['□', 'Event & seminar', 'Ikuti agenda pengembangan diri dan perluas jejaring.'],
+    ['◎', 'Direktori alumni', 'Kenali rekan lintas angkatan dalam ruang yang aman.'],
+    ['▤', 'Profil & CV', 'Bangun CV relevan dari satu profil profesional.'],
+    ['◇', 'Portofolio & sertifikat', 'Tampilkan karya dan bukti kompetensi pilihan Anda.'],
+    ['⌖', 'Tracer study', 'Bagikan perjalanan karier untuk pengembangan alumni.'],
 ];
 
-const readable = (value: string) => value.replaceAll('_', ' ').replace(/w/g, (letter) => letter.toUpperCase());
+const readable = (value: string) => value.replaceAll('_', ' ').replace(/\b\w/g, letter => letter.toUpperCase());
 
-export default function Home({ identityStatus, environmentLabel, jobs, events, opportunityCounts }: HomeProps) {
-    return <><Head title="Beranda" /><main className="landing-page landing-premium" id="top">
-        <header className="site-header"><Brand /><nav aria-label="Navigasi utama"><a href="#peluang">Peluang terbaru</a><a href="#manfaat">Manfaat</a><a href="#cara-kerja">Cara kerja</a></nav><div className="landing-header-actions"><Link className="ghost-button" href="/company/login">Portal perusahaan</Link><Link className="ghost-button" href="/login">Masuk</Link><Link className="primary-button" href="/register">Daftar alumni</Link></div></header>
-
-        <section className="hero hero-redesign home-opportunity-hero">
-            <div className="hero-copy"><div className="hero-badges">{environmentLabel && <span className="test-badge">{environmentLabel}</span>}<span className="soft-badge">Ekosistem Karier Farmasi UBP</span></div><p className="eyebrow">TALENTA FARMASI · PELUANG BERDAMPAK</p><h1>Karier farmasi<br /><em>dimulai lebih dekat.</em></h1><p className="lead">Satu ruang untuk membangun profil profesional, menemukan kesempatan, mengikuti event, dan mempertemukan alumni Farmasi UBP dengan perusahaan yang tepat.</p><div className="hero-actions"><Link className="primary-button" href="/register">Bangun profil alumni <span>→</span></Link><Link className="secondary-button" href="/company/register">Bergabung sebagai perusahaan</Link><Link href="/login" className="quiet-link">Saya sudah punya akun</Link></div><div className="trust-row"><span><b>{opportunityCounts.jobs}</b> lowongan aktif</span><span><b>{opportunityCounts.events}</b> event mendatang</span><span><b>5</b> template CV premium</span></div></div>
-            <div className="hero-art opportunity-board" aria-label="Ringkasan peluang SAFA KARIR"><div className="hero-glow" /><div className="opportunity-console"><div className="console-top"><span><i />SAFA CAREER DESK</span><small>LIVE OPPORTUNITIES</small></div><div className="console-title"><p>Farmasi UBP Career Network</p><strong>Temukan ruang<br />untuk bertumbuh.</strong></div><div className="console-metrics"><article><span>LOWONGAN</span><b>{opportunityCounts.jobs.toString().padStart(2, '0')}</b><small>aktif & terkurasi</small></article><article><span>EVENT</span><b>{opportunityCounts.events.toString().padStart(2, '0')}</b><small>agenda berikutnya</small></article></div><div className="console-ticker"><span>PROFIL</span><i /><span>CV</span><i /><span>EVENT</span><i /><span>PELUANG</span></div></div><span className="floating-note note-one">Privasi kandidat terjaga</span><span className="floating-note note-two">Khusus ekosistem Farmasi UBP</span></div>
-        </section>
-
-        <section className="opportunity-section" id="peluang"><div className="opportunity-heading"><div><p className="eyebrow">PELUANG TERBARU</p><h2>Lihat yang sedang terbuka.</h2></div><p>Informasi ringkas dapat dilihat langsung. Alumni masuk untuk membuka detail dan melamar; perusahaan masuk untuk mengelola rekrutmen.</p></div><div className="home-feed-grid">
-            <div className="home-feed"><div className="feed-header"><span>LOWONGAN AKTIF</span><b>{opportunityCounts.jobs.toString().padStart(2, '0')}</b></div>{jobs.length ? jobs.map((job) => <article className="home-job-card" key={job.reference}><div className="card-symbol">↗</div><div><small>{job.employer}</small><h3>{job.title}</h3><p>{[job.city, readable(job.work_mode), readable(job.employment_type)].filter(Boolean).join(' · ')}</p><div className="home-tags">{job.tags.slice(0, 3).map((tag) => <span key={tag}>{tag}</span>)}</div></div><Link href="/login">Lihat detail</Link></article>) : <div className="home-empty"><span>◎</span><h3>Lowongan baru sedang dikurasi.</h3><p>Masuk sebagai alumni untuk menyiapkan profil dan CV lebih dulu.</p></div>}<Link className="feed-footer-link" href="/login">Masuk untuk melihat semua lowongan →</Link></div>
-            <div className="home-feed event-feed"><div className="feed-header"><span>EVENT & SEMINAR</span><b>{opportunityCounts.events.toString().padStart(2, '0')}</b></div>{events.length ? events.map((event) => <article className={`home-event-card${event.flyer_url?' has-flyer':''}`} key={event.slug}>{event.flyer_url?<img src={event.flyer_url} alt={event.flyer_alt_text}/>:<time>{event.starts_at}</time>}<div><small>{readable(event.event_type)} · {event.organizer}</small><h3>{event.title}</h3><p>{event.location || 'Informasi lokasi tersedia setelah masuk.'}</p><div className="home-tags">{event.topics.slice(0, 3).map((topic) => <span key={topic}>{topic}</span>)}</div></div><Link href="/login">Ikuti event</Link></article>) : <div className="home-empty"><span>✦</span><h3>Agenda berikutnya sedang disiapkan.</h3><p>Event kampus dan sertifikat keikutsertaan akan tampil di sini.</p></div>}<Link className="feed-footer-link" href="/login">Masuk untuk melihat seluruh event →</Link></div>
-        </div></section>
-
-        <section className="landing-section" id="manfaat"><div className="section-kicker"><div><p className="eyebrow">DIBUAT UNTUK LANGKAH BERIKUTNYA</p><h2>Satu ekosistem,<br />dua pintu peluang.</h2></div><p>Alumni membangun bukti kompetensi dan mengatur keterbukaan profil. Perusahaan terverifikasi menemukan talenta berdasarkan kebutuhan yang terstruktur.</p></div><div className="benefit-grid">{benefits.map((item) => <article key={item.icon}><span>{item.icon}</span><h3>{item.title}</h3><p>{item.text}</p></article>)}</div></section>
-
-        <section className="workflow-section" id="cara-kerja"><div><p className="eyebrow">MUDAH DIMULAI</p><h2>Dari kampus menuju kesempatan yang lebih luas.</h2></div><ol><li><span>1</span><div><strong>Daftar dengan data minimum</strong><p>Admin kampus melakukan verifikasi tanpa menjadikan email atau OTP sebagai gate alumni.</p></div></li><li><span>2</span><div><strong>Bangun rekam jejak profesional</strong><p>Profil, CV, event, sertifikat, dan portofolio tersusun di sistem karier tanpa mewajibkan pembaruan profil Core.</p></div></li><li><span>3</span><div><strong>Temukan kecocokan</strong><p>Alumni memilih peluang; perusahaan terverifikasi mencari kandidat yang sudah memberi izin.</p></div></li></ol></section>
-
-        <section className="home-company-callout"><div><p className="eyebrow">UNTUK PERUSAHAAN</p><h2>Temukan talenta farmasi<br /><em>dengan konteks yang lebih utuh.</em></h2><p>Cari kompetensi, pengalaman, sertifikat, dan minat karier kandidat yang telah memilih untuk ditemukan.</p></div><div className="company-callout-actions"><Link className="primary-button" href="/company/register">Daftarkan perusahaan</Link><Link className="secondary-button" href="/company/login">Masuk ke portal</Link><small>Verifikasi admin diperlukan sebelum pencarian kandidat aktif.</small></div></section>
-
-        <footer><span>© 2026 SAFA KARIR · Farmasi UBP</span><span className="identity-health">Identitas {identityStatus === 'connected' ? 'terhubung' : 'belum terhubung'} · privasi sejak awal</span></footer>
-    </main></>;
+function HomeHeader({ actor }: { actor?: Actor }) {
+    const [open, setOpen] = useState(false);
+    const candidate = actor?.roles.includes('kandidat-karir');
+    const staff = actor?.roles.some(role => ['admin-karir', 'petugas-karir', 'viewer-karir'].includes(role));
+    const accountHref = candidate ? '/dashboard' : staff ? '/staff' : '/login';
+    const accountLabel = candidate ? 'Ruang alumni' : staff ? 'Ruang pengelola' : 'Masuk';
+    return <header className="home-v2-header">
+        <Brand context="FARMASI UBP" />
+        <button className="home-v2-menu" type="button" aria-expanded={open} aria-controls="home-nav" onClick={() => setOpen(!open)}><span /><span /><span /><b>Menu</b></button>
+        <nav id="home-nav" className={open ? 'is-open' : ''} aria-label="Navigasi utama"><a href="#top" onClick={() => setOpen(false)}>Beranda</a><a href="#lowongan" onClick={() => setOpen(false)}>Lowongan</a><a href="#event" onClick={() => setOpen(false)}>Event</a><a href="#alumni" onClick={() => setOpen(false)}>Alumni</a><a href="#fitur" onClick={() => setOpen(false)}>Fitur</a><a href="#tentang" onClick={() => setOpen(false)}>Tentang</a><Link className="home-v2-mobile-account" href={accountHref}>{accountLabel}</Link></nav>
+        <div className="home-v2-actions"><Link className="home-v2-login" href={accountHref}>{accountLabel}</Link>{!actor && <Link className="home-v2-register" href="/register">Daftar alumni</Link>}</div>
+    </header>;
 }
 
+function JobCard({ job, signedIn }: { job: Job; signedIn: boolean }) {
+    return <article className="home-v2-job-card"><div className="home-v2-company-mark">{job.employer.slice(0, 2).toUpperCase()}</div><div className="home-v2-card-body"><div className="home-v2-card-top"><span>{job.employer}</span><b>{readable(job.employment_type)}</b></div><h3>{job.title}</h3><p>⌖ {job.city || 'Lokasi diinformasikan'} · {readable(job.work_mode)}</p><div className="home-v2-tags">{job.tags.slice(0, 3).map(tag => <span key={tag}>{tag}</span>)}</div></div><Link aria-label={`Lihat ${job.title}`} href={signedIn ? `/jobs/${job.reference}` : '/login'}>→</Link></article>;
+}
 
+function EventCard({ event, signedIn }: { event: Event; signedIn: boolean }) {
+    return <article className="home-v2-event-card">{event.flyer_url ? <img src={event.flyer_url} alt={event.flyer_alt_text} /> : <div className="home-v2-date"><b>{event.starts_at.split(' ')[0]}</b><span>{event.starts_at.split(' ').slice(1).join(' ')}</span></div>}<div className="home-v2-card-body"><div className="home-v2-card-top"><span>{readable(event.event_type)}</span><b>{event.organizer}</b></div><h3>{event.title}</h3><p>⌖ {event.location || 'Detail lokasi tersedia di halaman event'}</p><div className="home-v2-tags">{event.topics.slice(0, 3).map(topic => <span key={topic}>{topic}</span>)}</div></div><Link aria-label={`Lihat ${event.title}`} href={signedIn ? `/events/${event.slug}` : '/login'}>→</Link></article>;
+}
+
+export default function Home({ identityStatus, environmentLabel, jobs, events, opportunityCounts }: HomeProps) {
+    const actor = usePage<SharedProps>().props.auth?.actor;
+    const isCandidate = actor?.roles.includes('kandidat-karir') ?? false;
+    const [query, setQuery] = useState('');
+    const submitSearch = (event: FormEvent) => { event.preventDefault(); if (isCandidate) router.get('/jobs', query.trim() ? { q: query.trim() } : {}); else router.visit('/login'); };
+
+    return <><Head title="SAFA KARIR — Alumni Farmasi UBP" /><main className="home-v2" id="top">
+        <HomeHeader actor={actor} />
+        <section className="home-v2-hero" aria-labelledby="home-title">
+            <img className="home-v2-hero-image" src="/images/safa-home-hero-v1.webp" alt="Alumni farmasi berjalan di lingkungan kampus" fetchPriority="high" /><div className="home-v2-hero-overlay" />
+            <div className="home-v2-hero-copy"><div className="home-v2-badges">{environmentLabel && <span>{environmentLabel}</span>}<span>Platform resmi Farmasi UBP</span></div><p className="home-v2-eyebrow">ALUMNI · KARIER · MASA DEPAN</p><h1 id="home-title">Koneksi hari ini,<br /><em>karier masa depan</em><br />bersama alumni.</h1><p>Bangun profil profesional, temukan peluang kerja, dan terus berkembang dalam ekosistem alumni Farmasi UBP.</p>
+                <form className="home-v2-search" onSubmit={submitSearch}><label className="sr-only" htmlFor="home-job-search">Cari lowongan</label><span>⌕</span><input id="home-job-search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Cari posisi, perusahaan, atau kompetensi" /><button type="submit">Cari</button></form><div className="home-v2-quick-tags"><span>Populer:</span><span>Apoteker</span><span>QA/QC</span><span>Regulatory</span><span>Industri</span></div>
+            </div>
+            <aside className="home-v2-hero-card"><span>✦</span><div><b>{actor ? `Selamat datang, ${actor.display_name.split(' ')[0]}` : 'Bergabung dengan alumni UBP'}</b><p>{actor ? 'Lanjutkan perjalanan karier Anda.' : 'Mulai profil profesional yang siap dibagikan.'}</p></div><Link href={actor ? (isCandidate ? '/dashboard' : '/staff') : '/register'}>→</Link></aside>
+        </section>
+
+        <section className="home-v2-feature-strip" id="fitur" aria-label="Fitur SAFA KARIR">{featureCards.map(([icon, title, text]) => <article key={title}><span>{icon}</span><div><h2>{title}</h2><p>{text}</p></div></article>)}</section>
+
+        <section className="home-v2-opportunities" aria-labelledby="opportunity-title"><div className="home-v2-section-head"><div><p className="home-v2-eyebrow">PELUANG TERBARU</p><h2 id="opportunity-title">Kesempatan yang dekat,<br />langkah yang lebih mantap.</h2></div><p>Informasi dari ekosistem kampus dan mitra terverifikasi, disajikan ringkas agar mudah dipilih.</p></div><div className="home-v2-feed-grid">
+            <section id="lowongan"><div className="home-v2-feed-title"><div><span>Lowongan aktif</span><b>{opportunityCounts.jobs}</b></div><Link href={isCandidate ? '/jobs' : '/login'}>Lihat semua →</Link></div><div className="home-v2-feed-list">{jobs.length ? jobs.map(job => <JobCard key={job.reference} job={job} signedIn={isCandidate} />) : <div className="home-v2-empty"><b>Lowongan sedang dikurasi.</b><p>Silakan kembali lagi untuk melihat peluang terbaru.</p></div>}</div></section>
+            <section id="event"><div className="home-v2-feed-title"><div><span>Event & seminar</span><b>{opportunityCounts.events}</b></div><Link href={isCandidate ? '/events' : '/login'}>Lihat semua →</Link></div><div className="home-v2-feed-list">{events.length ? events.map(item => <EventCard key={item.slug} event={item} signedIn={isCandidate} />) : <div className="home-v2-empty"><b>Agenda berikutnya sedang disiapkan.</b><p>Event yang telah dipublikasikan akan tampil di sini.</p></div>}</div></section>
+        </div></section>
+
+        <section className="home-v2-story" id="alumni"><div><p className="home-v2-eyebrow">PERJALANAN ALUMNI</p><h2>Satu profil untuk setiap langkah karier.</h2><p>Mulai dari rekam jejak akademik, CV untuk peluang tertentu, hingga event dan sertifikat yang memperkuat portofolio Anda.</p><Link className="home-v2-primary" href={actor ? (isCandidate ? '/profile' : '/staff') : '/register'}>{actor ? 'Lanjutkan perjalanan' : 'Mulai sekarang'} <span>→</span></Link></div><ol><li><span>01</span><div><b>Bangun profil</b><p>Isi sekali, gunakan kembali untuk banyak CV.</p></div></li><li><span>02</span><div><b>Pilih kesempatan</b><p>Temukan lowongan dan event yang relevan.</p></div></li><li><span>03</span><div><b>Tampilkan kemampuan</b><p>Bagikan hanya informasi yang Anda izinkan.</p></div></li></ol></section>
+
+        <section className="home-v2-company" id="tentang"><div><p className="home-v2-eyebrow">UNTUK PERUSAHAAN</p><h2>Temukan talenta farmasi<br />dengan konteks yang lebih utuh.</h2><p>Perusahaan terverifikasi dapat mempublikasikan lowongan dan menemukan kandidat yang telah memilih untuk dapat ditemukan.</p></div><div><Link className="home-v2-primary" href="/company/register">Daftarkan perusahaan <span>→</span></Link><Link className="home-v2-secondary" href="/company/login">Masuk portal perusahaan</Link><small>Verifikasi admin diperlukan sebelum akses pencarian talenta aktif.</small></div></section>
+        <section className="home-v2-final"><div><span>FARMASI UBP · SAFA KARIR</span><h2>Siapkan langkah berikutnya<br />bersama komunitas alumni.</h2></div><Link href={actor ? (isCandidate ? '/dashboard' : '/staff') : '/register'}>{actor ? 'Buka ruang Anda' : 'Daftar sebagai alumni'} <span>→</span></Link></section>
+        <footer className="home-v2-footer"><Brand context="FARMASI UBP" /><p>Ruang karier resmi untuk alumni Farmasi Universitas Buana Perjuangan Karawang.</p><nav><a href="#lowongan">Lowongan</a><a href="#event">Event</a><a href="#alumni">Alumni</a><a href="#tentang">Tentang</a></nav><small>© 2026 SAFA KARIR · Identitas {identityStatus === 'connected' ? 'terhubung' : 'belum terhubung'} · Privasi sejak awal</small></footer>
+    </main></>;
+}
