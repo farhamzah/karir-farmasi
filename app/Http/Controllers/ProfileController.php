@@ -88,6 +88,7 @@ class ProfileController extends Controller
             'profile_visibility' => $profile?->profile_visibility ?? 'private',
             'discoverable_by_verified_companies' => $profile?->discoverable_by_verified_companies ?? false,
             'discoverable_by_internal_leadership' => $profile?->discoverable_by_internal_leadership ?? false,
+            'visible_in_alumni_directory' => $profile?->visible_in_alumni_directory ?? true,
             'discoverability_updated_at' => $profile?->discoverability_updated_at?->toAtomString(),
             'section_visibility' => $profile?->section_visibility ?? [],
             'has_photo' => $profile?->photo_path !== null,

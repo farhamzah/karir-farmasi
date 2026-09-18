@@ -37,14 +37,14 @@ class FakeCoreAlumniGateway implements CoreAlumniGateway
     public function registration(string $reference): array
     {
         return ['reference' => $reference, 'student_number' => 'SYN-001',
-            'full_name' => 'Alumni Sintetis', 'status' => 'pending'];
+            'full_name' => 'Alumni Sintetis', 'graduation_year' => 2025, 'status' => 'pending'];
     }
 
     public function approve(string $reference, string $approverCoreUserId): array
     {
         $this->approved = [$reference, $approverCoreUserId];
 
-        return ['reference' => $reference, 'status' => 'approved'];
+        return ['reference' => $reference, 'status' => 'approved', 'core_user_id' => 'fixture-alumni-core-001'];
     }
 
     public function reject(string $reference, string $approverCoreUserId, string $reason): array

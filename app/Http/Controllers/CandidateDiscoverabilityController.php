@@ -13,7 +13,11 @@ class CandidateDiscoverabilityController extends Controller
 {
     public function update(Request $request, CareerProfileStore $profiles, CareerProfileResourcePolicy $policy, TalentIndexBuilder $indexBuilder): RedirectResponse
     {
-        $data = $request->validate(['discoverable_by_verified_companies' => ['required', 'boolean'], 'discoverable_by_internal_leadership' => ['required', 'boolean']]);
+        $data = $request->validate([
+            'discoverable_by_verified_companies' => ['required', 'boolean'],
+            'discoverable_by_internal_leadership' => ['required', 'boolean'],
+            'visible_in_alumni_directory' => ['sometimes', 'boolean'],
+        ]);
         /** @var CareerActor $actor */
         $actor = $request->attributes->get(CareerActor::class);
         $profile = $profiles->forWrite($actor);

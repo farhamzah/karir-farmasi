@@ -17,7 +17,8 @@ class CareerProfile extends Model implements OwnedCareerResource
     use HasFactory;
 
     protected $fillable = [
-        'core_user_id', 'talent_reference', 'professional_name', 'headline', 'professional_summary',
+        'core_user_id', 'talent_reference', 'alumni_number', 'graduation_year', 'visible_in_alumni_directory',
+        'professional_name', 'headline', 'professional_summary',
         'professional_email', 'whatsapp', 'city', 'linkedin_url', 'portfolio_url',
         'photo_path', 'open_to_work', 'profile_visibility', 'section_visibility',
         'last_confirmed_at', 'discoverable_by_verified_companies',
@@ -139,6 +140,7 @@ class CareerProfile extends Model implements OwnedCareerResource
             'last_confirmed_at' => 'datetime',
             'discoverable_by_verified_companies' => 'boolean',
             'discoverable_by_internal_leadership' => 'boolean',
+            'visible_in_alumni_directory' => 'boolean',
             'discoverability_updated_at' => 'datetime',
         ];
     }

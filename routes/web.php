@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\EventParticipantController;
 use App\Http\Controllers\Admin\JobImportController;
 use App\Http\Controllers\Admin\RegistrationController as AdminRegistrationController;
 use App\Http\Controllers\Admin\RegistrationDecisionController;
+use App\Http\Controllers\AlumniDirectoryController;
 use App\Http\Controllers\AlumniRegistrationController;
 use App\Http\Controllers\ApplicationDocumentController;
 use App\Http\Controllers\CandidateDashboardController;
@@ -150,6 +151,13 @@ Route::prefix('s')->name('public-cv.')->middleware('throttle:60,1')->group(funct
 Route::get('/dashboard', CandidateDashboardController::class)
     ->middleware(['core.principal', 'career.can:'.CareerCapability::CandidateDashboardView->value])
     ->name('dashboard');
+
+Route::prefix('alumni')->name('alumni.')->middleware([
+    'core.principal', 'career.can:'.CareerCapability::CandidateDashboardView->value,
+])->group(function () {
+    Route::get('/', [AlumniDirectoryController::class, 'index'])->name('index');
+    Route::get('/{profile:talent_reference}/photo', [AlumniDirectoryController::class, 'photo'])->name('photo');
+});
 
 Route::get('/notifications', [NotificationController::class, 'candidate'])
     ->middleware(['core.principal', 'career.can:'.CareerCapability::NotificationReadOwn->value])->name('notifications.index');

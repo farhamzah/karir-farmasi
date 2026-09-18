@@ -28,6 +28,9 @@ class DemoTestAccountSeeder extends Seeder
 
         $anisa = $this->profile([
             'core_user_id' => 'fixture-core-user-001',
+            'alumni_number' => '2210631210002',
+            'graduation_year' => 2026,
+            'visible_in_alumni_directory' => true,
             'professional_name' => 'Anisa Susanti, S.Farm.',
             'headline' => 'Fresh graduate Farmasi UBP | Minat QA/QC, Regulatory, dan Pelayanan Kefarmasian',
             'professional_summary' => 'Alumni Farmasi Universitas Buana Perjuangan Karawang yang teliti, adaptif, dan siap berkontribusi pada layanan kefarmasian, industri farmasi, serta edukasi kesehatan masyarakat.',
@@ -45,6 +48,9 @@ class DemoTestAccountSeeder extends Seeder
 
         $this->fillProfile($this->profile([
             'core_user_id' => 'fixture-core-user-002',
+            'alumni_number' => '2110631210015',
+            'graduation_year' => 2025,
+            'visible_in_alumni_directory' => true,
             'professional_name' => 'Nadira Azzahra, S.Farm.',
             'headline' => 'Apoteker muda dengan fokus rumah sakit dan pelayanan pasien',
             'professional_summary' => 'Berpengalaman dalam PKPA rumah sakit, konseling obat, dan edukasi pasien.',
@@ -58,6 +64,9 @@ class DemoTestAccountSeeder extends Seeder
 
         $this->fillProfile($this->profile([
             'core_user_id' => 'fixture-core-user-003',
+            'alumni_number' => '2010631210008',
+            'graduation_year' => 2024,
+            'visible_in_alumni_directory' => true,
             'professional_name' => 'Rizky Maulana, S.Farm.',
             'headline' => 'Alumni Farmasi UBP dengan minat produksi dan PBF',
             'professional_summary' => 'Memiliki ketertarikan pada distribusi farmasi, produksi, ISO, dan sistem mutu.',

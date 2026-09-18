@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Contracts\CoreAlumniGateway;
+use App\Models\CareerProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Fakes\FakeCoreAlumniGateway;
 use Tests\TestCase;
@@ -37,6 +38,11 @@ class AdminRegistrationWorkflowTest extends TestCase
         ])->assertRedirect(route('admin.registrations.show', 'KARIR-SYN-001'));
 
         $this->assertSame(['KARIR-SYN-001', 'core-admin-001'], $this->gateway->approved);
+        $profile = CareerProfile::where('core_user_id', 'fixture-alumni-core-001')->sole();
+        $this->assertSame('SYN-001', $profile->alumni_number);
+        $this->assertSame(2025, $profile->graduation_year);
+        $this->assertSame('Alumni Sintetis', $profile->professional_name);
+        $this->assertTrue($profile->visible_in_alumni_directory);
     }
 
     public function test_admin_rejects_with_reason_and_session_actor(): void
