@@ -11,13 +11,14 @@ type Props = {
     filters: { q: string; graduation_year: number | null };
     graduationYears: number[];
     total: number;
+    unrestricted: boolean;
 };
 
 function initials(name: string) {
     return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
 }
 
-export default function Index({ alumni, audience, filters, graduationYears, total }: Props) {
+export default function Index({ alumni, audience, filters, graduationYears, total, unrestricted }: Props) {
     const [query, setQuery] = useState(filters.q);
     const [year, setYear] = useState(filters.graduation_year ? String(filters.graduation_year) : '');
     const search = () => router.get('/alumni', { q: query || undefined, graduation_year: year || undefined }, { preserveState: true });
@@ -29,7 +30,7 @@ export default function Index({ alumni, audience, filters, graduationYears, tota
         <section className="alumni-directory-shell">
             <header className="alumni-directory-hero">
                 <div><p className="eyebrow">JEJARING FARMASI UBP</p><h1>Wajah alumni,<br /><em>lintas angkatan.</em></h1><p className="alumni-directory-lead">Daftar identitas ringan untuk mengenali alumni. Profil profesional, kontak, dokumen, dan tracer tidak ditampilkan di halaman ini.</p></div>
-                <div className="alumni-directory-stat"><strong>{total}</strong><span>alumni memberi izin tampil</span><p>Urutan mengikuti NIM agar angkatan mudah dikenali.</p></div>
+                <div className="alumni-directory-stat"><strong>{total}</strong><span>{unrestricted ? 'alumni terdaftar' : 'alumni memberi izin tampil'}</span><p>Urutan mengikuti NIM agar angkatan mudah dikenali.</p></div>
             </header>
             <section className="alumni-directory-toolbar" aria-label="Filter direktori alumni">
                 <label><span>Cari alumni</span><input value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && search()} placeholder="Nama atau NIM" /></label>
@@ -38,7 +39,7 @@ export default function Index({ alumni, audience, filters, graduationYears, tota
                 {(filters.q || filters.graduation_year) && <button className="text-button" type="button" onClick={() => router.get('/alumni')}>Reset</button>}
                 <p><strong>{alumni.length}</strong> hasil ditampilkan</p>
             </section>
-            {alumni.length === 0 ? <section className="alumni-directory-empty"><strong>Belum ada alumni yang cocok.</strong><p>Ubah pencarian atau tahun lulus. Alumni hanya muncul setelah memberi izin tampil.</p></section> :
+            {alumni.length === 0 ? <section className="alumni-directory-empty"><strong>Belum ada alumni yang cocok.</strong><p>{unrestricted ? 'Ubah pencarian atau tahun lulus. Data muncul setelah profil memiliki NIM.' : 'Ubah pencarian atau tahun lulus. Alumni hanya muncul setelah memberi izin tampil.'}</p></section> :
                 <section className="alumni-directory-grid" aria-label="Daftar alumni">
                     {alumni.map((person) => <article className="alumni-directory-card" key={person.reference}>
                         <div className="alumni-directory-photo">{person.photo_url ? <img src={person.photo_url} alt={`Foto ${person.name}`} loading="lazy" /> : <span className="alumni-directory-avatar" aria-hidden="true">{initials(person.name)}</span>}<i aria-hidden="true" /></div>

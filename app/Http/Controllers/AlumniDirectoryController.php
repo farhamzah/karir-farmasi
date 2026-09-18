@@ -17,10 +17,11 @@ class AlumniDirectoryController extends Controller
     {
         /** @var CareerActor $actor */
         $actor = $request->attributes->get(CareerActor::class);
+        $isAdministrator = in_array(CareerRoleRegistry::Administrator, $actor->roles, true);
         $query = trim($request->string('q')->toString());
         $graduationYear = $request->integer('graduation_year') ?: null;
         $visibleProfiles = CareerProfile::query()
-            ->where('visible_in_alumni_directory', true)
+            ->when(! $isAdministrator, fn ($builder) => $builder->where('visible_in_alumni_directory', true))
             ->whereNotNull('alumni_number');
         $total = (clone $visibleProfiles)->count();
         $graduationYears = (clone $visibleProfiles)->whereNotNull('graduation_year')
@@ -48,12 +49,16 @@ class AlumniDirectoryController extends Controller
             'filters' => ['q' => $query, 'graduation_year' => $graduationYear],
             'graduationYears' => $graduationYears,
             'total' => $total,
+            'unrestricted' => $isAdministrator,
         ]);
     }
 
-    public function photo(CareerProfile $profile): StreamedResponse
+    public function photo(Request $request, CareerProfile $profile): StreamedResponse
     {
-        abort_unless($profile->visible_in_alumni_directory && $profile->alumni_number !== null && $profile->photo_path !== null, 404);
+        /** @var CareerActor $actor */
+        $actor = $request->attributes->get(CareerActor::class);
+        $isAdministrator = in_array(CareerRoleRegistry::Administrator, $actor->roles, true);
+        abort_unless(($isAdministrator || $profile->visible_in_alumni_directory) && $profile->alumni_number !== null && $profile->photo_path !== null, 404);
         abort_unless(Storage::disk('career_private')->exists($profile->photo_path), 404);
 
         return Storage::disk('career_private')->response($profile->photo_path, null, [

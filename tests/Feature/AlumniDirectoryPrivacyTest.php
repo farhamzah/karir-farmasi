@@ -48,7 +48,8 @@ class AlumniDirectoryPrivacyTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Alumni/Index')
                 ->where('audience', 'staff')
-                ->where('total', 2)
+                ->where('unrestricted', true)
+                ->where('total', 3)
                 ->has('alumni', 1)
                 ->where('alumni.0.name', 'Budi Farmasi')
                 ->where('filters.q', 'Budi')
@@ -69,13 +70,18 @@ class AlumniDirectoryPrivacyTest extends TestCase
 
         $this->get(route('alumni.index'))->assertRedirect(route('home'));
 
-        foreach (['kandidat-karir', 'admin-karir', 'petugas-karir', 'viewer-karir'] as $index => $role) {
+        foreach (['kandidat-karir', 'petugas-karir', 'viewer-karir'] as $index => $role) {
             $session = ['core_principal' => $this->principal($role, 'directory-user-'.$index)];
             $this->withSession($session)->get(route('alumni.index'))->assertOk();
             $this->withSession($session)->get(route('alumni.photo', $visible))->assertOk()
                 ->assertHeader('Cache-Control', 'no-store, private');
             $this->withSession($session)->get(route('alumni.photo', $hidden))->assertNotFound();
         }
+
+        $adminSession = ['core_principal' => $this->principal('admin-karir', 'directory-admin')];
+        $this->withSession($adminSession)->get(route('alumni.index'))->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('unrestricted', true)->has('alumni', 2));
+        $this->withSession($adminSession)->get(route('alumni.photo', $hidden))->assertOk();
     }
 
     private function principal(string $role, string $id): array
