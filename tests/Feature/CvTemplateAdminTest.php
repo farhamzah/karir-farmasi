@@ -18,7 +18,7 @@ class CvTemplateAdminTest extends TestCase
 
     public function test_only_admin_karir_can_access_template_management(): void
     {
-        $this->get(route('admin.cv-templates.index'))->assertRedirect(route('login'));
+        $this->get(route('admin.cv-templates.index'))->assertRedirect(route('home'));
         foreach (['kandidat-karir', 'petugas-karir', 'viewer-karir'] as $role) {
             $this->withSession(['core_principal' => $this->principal('actor-'.$role, [$role])])
                 ->get(route('admin.cv-templates.index'))->assertForbidden();

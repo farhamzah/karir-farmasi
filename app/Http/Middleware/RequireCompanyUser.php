@@ -24,7 +24,7 @@ class RequireCompanyUser
         if ($user === null || ! $user->active || ! $user->company?->active) {
             $request->session()->forget('company_user_id');
 
-            return redirect()->route('company.login')->withErrors(['email' => 'Silakan masuk dengan akun perusahaan yang aktif.']);
+            return redirect()->route('home');
         }
 
         $request->attributes->set(CompanyUser::class, $user);

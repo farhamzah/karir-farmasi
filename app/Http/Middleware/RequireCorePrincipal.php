@@ -16,7 +16,7 @@ class RequireCorePrincipal
     public function handle(Request $request, Closure $next): Response
     {
         if (! is_array($request->session()->get('core_principal'))) {
-            return redirect()->route('login')->withErrors(['identifier' => 'Silakan login untuk melanjutkan.']);
+            return redirect()->route('home');
         }
 
         return $next($request);

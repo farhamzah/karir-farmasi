@@ -16,7 +16,7 @@ class ProfileAuthorizationTest extends TestCase
 
     public function test_profile_routes_require_login_and_candidate_capability(): void
     {
-        $this->get(route('profile.index'))->assertRedirect(route('login'));
+        $this->get(route('profile.index'))->assertRedirect(route('home'));
 
         foreach (['admin-karir', 'petugas-karir', 'viewer-karir'] as $role) {
             $this->withSession(['core_principal' => $this->principal([$role])])

@@ -85,6 +85,18 @@ class CompanyAccountWorkflowTest extends TestCase
         $this->assertMatchesRegularExpression('/^[0-9a-f-]{36}$/', $company->public_reference);
     }
 
+    public function test_company_logout_returns_to_public_home(): void
+    {
+        $user = CompanyUser::factory()
+            ->for(Company::factory()->verified())
+            ->create();
+
+        $this->withSession(['company_user_id' => $user->id])
+            ->delete(route('company.logout'))
+            ->assertRedirect(route('home'))
+            ->assertSessionMissing('company_user_id');
+    }
+
     private function principal(string $role): array
     {
         return ['issuer' => 'https://fixture.invalid', 'subject' => 'fixture:admin', 'core_user_id' => 'core-admin-001',

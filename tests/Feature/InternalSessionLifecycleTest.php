@@ -108,7 +108,7 @@ class InternalSessionLifecycleTest extends TestCase
         $response = $this->withSession(['core_principal' => $principal])
             ->delete(route('internal-session.destroy'));
 
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect(route('home'));
         $response->assertSessionMissing('core_principal');
         Http::assertNothingSent();
     }

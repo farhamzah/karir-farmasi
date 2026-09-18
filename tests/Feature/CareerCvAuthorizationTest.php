@@ -13,7 +13,7 @@ class CareerCvAuthorizationTest extends TestCase
 
     public function test_cv_routes_require_candidate_capability(): void
     {
-        $this->get(route('cv.index'))->assertRedirect(route('login'));
+        $this->get(route('cv.index'))->assertRedirect(route('home'));
         foreach (['admin-karir', 'petugas-karir', 'viewer-karir'] as $role) {
             $this->withSession(['core_principal' => $this->principal('staff', [$role])])->get(route('cv.index'))->assertForbidden();
         }

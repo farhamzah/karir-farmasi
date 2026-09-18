@@ -100,7 +100,7 @@ class TalentSearchPrivacyTest extends TestCase
 
     public function test_talent_search_requires_authentication_and_is_rate_limited(): void
     {
-        $this->get(route('company.talent.index'))->assertRedirect(route('company.login'));
+        $this->get(route('company.talent.index'))->assertRedirect(route('home'));
         $user = CompanyUser::factory()->for(Company::factory()->verified())->create();
 
         for ($attempt = 1; $attempt <= 39; $attempt++) {

@@ -23,7 +23,7 @@ class AdminRegistrationWorkflowTest extends TestCase
 
     public function test_guest_and_candidate_cannot_open_admin_queue(): void
     {
-        $this->get(route('admin.registrations.index'))->assertRedirect(route('login'));
+        $this->get(route('admin.registrations.index'))->assertRedirect(route('home'));
         $this->withSession(['core_principal' => $this->principal(['kandidat-karir'])])
             ->get(route('admin.registrations.index'))->assertForbidden();
     }

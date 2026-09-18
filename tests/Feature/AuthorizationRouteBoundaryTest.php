@@ -24,7 +24,7 @@ class AuthorizationRouteBoundaryTest extends TestCase
 
     public function test_candidate_dashboard_requires_candidate_capability_and_supports_explicit_multi_role_union(): void
     {
-        $this->get(route('dashboard'))->assertRedirect(route('login'));
+        $this->get(route('dashboard'))->assertRedirect(route('home'));
         $this->withSession(['core_principal' => $this->principal(['kandidat-karir'])])
             ->get(route('dashboard'))->assertOk();
         $this->withSession(['core_principal' => $this->principal(['admin-karir'])])

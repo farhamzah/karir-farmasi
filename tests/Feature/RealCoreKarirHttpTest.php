@@ -49,7 +49,7 @@ class RealCoreKarirHttpTest extends TestCase
             'approver_core_user_id' => 'spoofed-browser-id',
         ])->assertSessionHasNoErrors()->assertRedirect(route('admin.registrations.show', $reference));
 
-        $this->delete(route('internal-session.destroy'))->assertRedirect(route('login'));
+        $this->delete(route('internal-session.destroy'))->assertRedirect(route('home'));
         $this->post(route('internal-session.store'), [
             'identifier' => $registration['student_number'], 'password' => $password,
         ])->assertRedirect(route('dashboard'));

@@ -52,7 +52,7 @@ class AlumniDirectoryPrivacyTest extends TestCase
             'photo_path' => 'profile-photos/alumni.jpg', 'visible_in_alumni_directory' => false,
         ]);
 
-        $this->get(route('alumni.index'))->assertRedirect(route('login'));
+        $this->get(route('alumni.index'))->assertRedirect(route('home'));
         $this->withSession(['core_principal' => $this->principal('viewer-karir', 'staff-viewer')])
             ->get(route('alumni.index'))->assertForbidden();
 
