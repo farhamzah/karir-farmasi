@@ -12,9 +12,14 @@ class LeadershipTalentScopeTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_viewer_role_without_assignment_cannot_search_internal_directory(): void
+    public function test_viewer_without_assignment_receives_safe_guidance_without_directory_results(): void
     {
-        $this->withSession(['core_principal' => $this->principal('leader-no-scope')])->get(route('internal.talent.index'))->assertForbidden();
+        $this->withSession(['core_principal' => $this->principal('leader-no-scope')])->get(route('internal.talent.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('Talent/Search')
+                ->where('audience', 'internal')
+                ->where('accessUnavailable', true)
+                ->has('results', 0));
     }
 
     public function test_kaprodi_assignment_limits_results_to_its_program(): void

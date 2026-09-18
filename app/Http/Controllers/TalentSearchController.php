@@ -40,8 +40,14 @@ class TalentSearchController extends Controller
         $assignments = LeadershipAssignment::query()->where('actor_core_user_id', $actor->coreUserId)->where('active', true)
             ->where(fn ($query) => $query->whereNull('valid_from')->orWhere('valid_from', '<=', today()))
             ->where(fn ($query) => $query->whereNull('valid_until')->orWhere('valid_until', '>=', today()))->get();
-        abort_if($assignments->isEmpty(), 403, 'Assignment lingkup direktori belum tersedia.');
         $filters = $this->filters($request);
+        if ($assignments->isEmpty()) {
+            return Inertia::render('Talent/Search', [
+                'audience' => 'internal', 'heading' => 'Direktori Talenta Farmasi — Internal',
+                'scope' => 'Lingkup akses belum ditetapkan oleh administrator SAFA KARIR.',
+                'filters' => $filters, 'results' => [], 'accessUnavailable' => true,
+            ]);
+        }
         $results = $search->search($filters, 'internal', $assignments);
         $audit->search($actor, $filters, $results->count());
 
@@ -49,6 +55,7 @@ class TalentSearchController extends Controller
             'audience' => 'internal', 'heading' => 'Direktori Talenta Farmasi — Internal',
             'scope' => $assignments->map(fn ($item) => $item->scope_label)->unique()->implode(', '), 'filters' => $filters,
             'results' => $results->map(fn ($index) => $this->card($index, $search, $filters, false))->all(),
+            'accessUnavailable' => false,
         ]);
     }
 
