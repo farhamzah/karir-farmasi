@@ -10,6 +10,7 @@ use App\Models\Company;
 use App\Models\CompanyShortlist;
 use App\Models\CompanyUser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -47,6 +48,30 @@ class TalentSearchPrivacyTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page->component('Talent/Profile')->missing('profile.professional_email')
                 ->missing('profile.whatsapp')->missing('profile.core_user_id')->missing('profile.certifications.0.attachment_path'));
         $this->assertDatabaseHas('talent_access_audits', ['action' => 'talent.profile.view', 'company_id' => $companyUser->company_id]);
+    }
+
+    public function test_talent_photos_follow_the_same_discoverability_rules_as_profiles(): void
+    {
+        Storage::fake('career_private');
+        Storage::disk('career_private')->put('profile-photos/anisa.jpg', 'image-content');
+        $profile = $this->indexedProfile();
+        $profile->update(['photo_path' => 'profile-photos/anisa.jpg']);
+        $companyUser = CompanyUser::factory()->for(Company::factory()->verified())->create();
+
+        $companySession = ['company_user_id' => $companyUser->id];
+        $this->withSession($companySession)->get(route('company.talent.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('results.0.photo_url', route('company.talent.photo', $profile->talent_reference))
+                ->missing('results.0.photo_path'));
+        $this->withSession($companySession)->get(route('company.talent.photo', $profile->talent_reference))
+            ->assertOk()->assertHeader('Cache-Control', 'no-store, private');
+
+        $profile->update(['discoverable_by_verified_companies' => false]);
+        $this->withSession($companySession)->get(route('company.talent.photo', $profile->talent_reference))->assertNotFound();
+
+        $adminSession = ['core_principal' => $this->internalPrincipal('admin-karir', 'admin-photo')];
+        $this->withSession($adminSession)->get(route('internal.talent.photo', $profile->talent_reference))
+            ->assertOk()->assertHeader('Cache-Control', 'no-store, private');
     }
 
     public function test_filters_and_revoke_remove_candidate_immediately(): void
@@ -137,5 +162,12 @@ class TalentSearchPrivacyTest extends TestCase
         return ['issuer' => 'https://fixture.invalid', 'subject' => 'fixture:'.$id, 'core_user_id' => $id, 'display_name' => 'Alumni Sintetis',
             'email' => null, 'active' => true, 'app_code' => 'karir-farmasi', 'has_app_access' => true, 'roles' => ['kandidat-karir'],
             'program_ids' => ['farmasi-ubp'], 'verified_at' => '2026-09-12T00:00:00+07:00', 'synthetic' => true];
+    }
+
+    private function internalPrincipal(string $role, string $id): array
+    {
+        return ['issuer' => 'https://fixture.invalid', 'subject' => 'fixture:'.$id, 'core_user_id' => $id, 'display_name' => 'Petugas Kampus',
+            'email' => $id.'@fixture.invalid', 'active' => true, 'app_code' => 'karir-farmasi', 'has_app_access' => true, 'roles' => [$role],
+            'program_ids' => [], 'verified_at' => '2026-09-12T00:00:00+07:00', 'synthetic' => true];
     }
 }

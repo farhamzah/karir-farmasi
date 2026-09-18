@@ -1,7 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import type { NavItem } from './AppHeader';
 
-type StaffSection = 'overview' | 'registrations' | 'templates' | 'events' | 'jobs' | 'companies' | 'talent' | 'tracer';
+type StaffSection = 'overview' | 'registrations' | 'templates' | 'events' | 'jobs' | 'companies' | 'alumni' | 'talent' | 'tracer';
 type CompanySection = 'dashboard' | 'talent' | 'jobs' | 'team' | 'inbox';
 type SharedProps = { auth?: { actor?: { roles: string[]; capabilities: string[] } } };
 
@@ -21,7 +21,8 @@ export function useStaffNav(active: StaffSection): NavItem[] {
     if (roles.includes('viewer-karir')) {
         return [
             { label: 'Ringkasan', href: '/staff', active: active === 'overview' },
-            ...(can('talent.directory.search.internal') ? [{ label: 'Direktori Alumni', href: '/internal/talent', active: active === 'talent' }] : []),
+            ...(can('alumni.directory.view') ? [{ label: 'Alumni', href: '/alumni', active: active === 'alumni' }] : []),
+            ...(can('talent.directory.search.internal') ? [{ label: 'Pencarian Talenta', href: '/internal/talent', active: active === 'talent' }] : []),
             ...(can('event.aggregate.view') ? [{ label: 'Data Event', href: '/admin/events', active: active === 'events' }] : []),
         ];
     }
@@ -29,6 +30,7 @@ export function useStaffNav(active: StaffSection): NavItem[] {
     return [
         { label: 'Ringkasan', href: '/staff', active: active === 'overview' },
         ...(operations.length ? [{ label: 'Kelola', active: operations.some(item => item.active), children: operations }] : []),
+        ...(can('alumni.directory.view') ? [{ label: 'Alumni', href: '/alumni', active: active === 'alumni' }] : []),
         ...(can('talent.directory.search.internal') ? [{ label: 'Direktori Talenta', href: '/internal/talent', active: active === 'talent' }] : []),
         ...(can('tracer.manage') ? [{ label: 'Tracer', href: '/admin/tracer', active: active === 'tracer' }] : []),
     ];

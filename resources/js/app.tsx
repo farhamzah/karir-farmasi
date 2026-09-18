@@ -46,6 +46,7 @@ import TracerIndex from './pages/Tracer/Index';
 import TracerShow from './pages/Tracer/Show';
 import AdminTracerIndex from './pages/Admin/Tracer/Index';
 import AdminJobImport from './pages/Admin/Jobs/Import';
+import AlumniIndex from './pages/Alumni/Index';
 
 const pages = {
     Home,
@@ -94,6 +95,7 @@ const pages = {
     'Tracer/Show': TracerShow,
     'Admin/Tracer/Index': AdminTracerIndex,
     'Admin/Jobs/Import': AdminJobImport,
+    'Alumni/Index': AlumniIndex,
 };
 
 createInertiaApp({

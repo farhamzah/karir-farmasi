@@ -12,7 +12,7 @@ class AlumniDirectoryPrivacyTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_candidate_only_sees_consenting_alumni_in_nim_order_with_minimum_fields(): void
+    public function test_authorized_users_only_see_consenting_alumni_in_nim_order_with_minimum_fields(): void
     {
         CareerProfile::factory()->create([
             'core_user_id' => 'alumni-later', 'alumni_number' => '22.000002',
@@ -41,9 +41,24 @@ class AlumniDirectoryPrivacyTest extends TestCase
                 ->missing('alumni.1.professional_email')
                 ->missing('alumni.1.whatsapp')
                 ->missing('alumni.1.core_user_id'));
+
+        $this->withSession(['core_principal' => $this->principal('admin-karir', 'campus-admin')])
+            ->get(route('alumni.index', ['q' => 'Budi', 'graduation_year' => 2026]))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Alumni/Index')
+                ->where('audience', 'staff')
+                ->where('total', 2)
+                ->has('alumni', 1)
+                ->where('alumni.0.name', 'Budi Farmasi')
+                ->where('filters.q', 'Budi')
+                ->where('filters.graduation_year', 2026)
+                ->missing('alumni.0.professional_email')
+                ->missing('alumni.0.whatsapp')
+                ->missing('alumni.0.core_user_id'));
     }
 
-    public function test_directory_and_photos_require_candidate_access_and_directory_consent(): void
+    public function test_directory_and_photos_require_authorized_access_and_directory_consent(): void
     {
         Storage::fake('career_private');
         Storage::disk('career_private')->put('profile-photos/alumni.jpg', 'image-content');
@@ -53,13 +68,14 @@ class AlumniDirectoryPrivacyTest extends TestCase
         ]);
 
         $this->get(route('alumni.index'))->assertRedirect(route('home'));
-        $this->withSession(['core_principal' => $this->principal('viewer-karir', 'staff-viewer')])
-            ->get(route('alumni.index'))->assertForbidden();
 
-        $session = ['core_principal' => $this->principal('kandidat-karir', 'candidate')];
-        $this->withSession($session)->get(route('alumni.photo', $visible))->assertOk()
-            ->assertHeader('Cache-Control', 'no-store, private');
-        $this->withSession($session)->get(route('alumni.photo', $hidden))->assertNotFound();
+        foreach (['kandidat-karir', 'admin-karir', 'petugas-karir', 'viewer-karir'] as $index => $role) {
+            $session = ['core_principal' => $this->principal($role, 'directory-user-'.$index)];
+            $this->withSession($session)->get(route('alumni.index'))->assertOk();
+            $this->withSession($session)->get(route('alumni.photo', $visible))->assertOk()
+                ->assertHeader('Cache-Control', 'no-store, private');
+            $this->withSession($session)->get(route('alumni.photo', $hidden))->assertNotFound();
+        }
     }
 
     private function principal(string $role, string $id): array

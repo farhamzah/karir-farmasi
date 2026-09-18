@@ -30,7 +30,7 @@ class TalentSearchController extends Controller
         return Inertia::render('Talent/Search', [
             'audience' => 'company', 'heading' => 'Temukan talenta farmasi yang relevan.',
             'scope' => 'Kandidat yang memberi izin kepada perusahaan terverifikasi', 'filters' => $filters,
-            'results' => $results->map(fn ($index) => $this->card($index, $search, $filters, in_array($index->career_profile_id, $shortlisted, true)))->all(),
+            'results' => $results->map(fn ($index) => $this->card($index, $search, $filters, in_array($index->career_profile_id, $shortlisted, true), 'company'))->all(),
         ]);
     }
 
@@ -58,7 +58,7 @@ class TalentSearchController extends Controller
             'scope' => $isAdministrator
                 ? 'Seluruh alumni Farmasi UBP · akses administrator'
                 : $assignments->map(fn ($item) => $item->scope_label)->unique()->implode(', '), 'filters' => $filters,
-            'results' => $results->map(fn ($index) => $this->card($index, $search, $filters, false))->all(),
+            'results' => $results->map(fn ($index) => $this->card($index, $search, $filters, false, 'internal'))->all(),
             'accessUnavailable' => false,
         ]);
     }
@@ -98,10 +98,13 @@ class TalentSearchController extends Controller
     }
 
     /** @return array<string, mixed> */
-    private function card(TalentProfileIndex $index, TalentSearchService $search, array $filters, bool $shortlisted): array
+    private function card(TalentProfileIndex $index, TalentSearchService $search, array $filters, bool $shortlisted, string $audience): array
     {
         return [
             'reference' => $index->profile->talent_reference, 'professional_name' => $index->professional_name,
+            'photo_url' => $index->profile->photo_path !== null
+                ? route($audience === 'company' ? 'company.talent.photo' : 'internal.talent.photo', $index->profile->talent_reference)
+                : null,
             'headline' => $index->headline, 'city' => $index->city,
             'education' => collect([$index->education_level, $index->education_program])->filter()->implode(' · '),
             'skills' => array_slice($index->skills ?? [], 0, 6), 'experience' => array_slice($index->sectors ?? [], 0, 2),

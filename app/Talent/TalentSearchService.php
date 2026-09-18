@@ -17,7 +17,7 @@ final class TalentSearchService
      */
     public function search(array $filters, string $audience, ?Collection $assignments = null, bool $unrestrictedInternal = false): Collection
     {
-        $query = TalentProfileIndex::query()->with('profile:id,talent_reference,discoverable_by_verified_companies,discoverable_by_internal_leadership');
+        $query = TalentProfileIndex::query()->with('profile:id,talent_reference,photo_path,discoverable_by_verified_companies,discoverable_by_internal_leadership');
         $flag = $audience === 'company' ? 'discoverable_by_verified_companies' : 'discoverable_by_internal_leadership';
         if (! ($audience === 'internal' && $unrestrictedInternal)) {
             $query->whereHas('profile', fn (Builder $builder) => $builder->where($flag, true));

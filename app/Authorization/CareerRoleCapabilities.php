@@ -10,6 +10,7 @@ final class CareerRoleCapabilities
     private const MAP = [
         CareerRoleRegistry::Candidate => [
             CareerCapability::CandidateDashboardView,
+            CareerCapability::AlumniDirectoryView,
             CareerCapability::ProfileViewOwn,
             CareerCapability::ProfileUpdateOwn,
             CareerCapability::CvViewOwn,
@@ -25,6 +26,7 @@ final class CareerRoleCapabilities
             CareerCapability::TracerSubmitOwn,
         ],
         CareerRoleRegistry::Administrator => [
+            CareerCapability::AlumniDirectoryView,
             CareerCapability::RegistrationQueueView,
             CareerCapability::RegistrationDetailView,
             CareerCapability::RegistrationApprove,
@@ -45,6 +47,7 @@ final class CareerRoleCapabilities
             CareerCapability::OperationalExport,
         ],
         CareerRoleRegistry::Officer => [
+            CareerCapability::AlumniDirectoryView,
             CareerCapability::RegistrationQueueView,
             CareerCapability::RegistrationDetailView,
             CareerCapability::CareerAdminAccess,
@@ -58,7 +61,7 @@ final class CareerRoleCapabilities
             CareerCapability::ApplicationOperationalView,
             CareerCapability::OperationalExport,
         ],
-        CareerRoleRegistry::Viewer => [CareerCapability::AggregateDashboardView, CareerCapability::EventAggregateView, CareerCapability::TalentDirectorySearchInternal, CareerCapability::OperationalExport],
+        CareerRoleRegistry::Viewer => [CareerCapability::AggregateDashboardView, CareerCapability::AlumniDirectoryView, CareerCapability::EventAggregateView, CareerCapability::TalentDirectorySearchInternal, CareerCapability::OperationalExport],
     ];
 
     /**

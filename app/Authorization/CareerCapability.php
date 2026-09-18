@@ -18,6 +18,7 @@ enum CareerCapability: string
     case CertificateManage = 'certificate.manage';
     case EventAggregateView = 'event.aggregate.view';
     case CompanyManage = 'company.manage';
+    case AlumniDirectoryView = 'alumni.directory.view';
     case TalentDirectorySearchInternal = 'talent.directory.search.internal';
     case JobBrowse = 'job.browse';
     case JobApplyOwn = 'job.apply.own';
@@ -59,6 +60,7 @@ enum CareerCapability: string
             self::EventParticipantManage,
             self::CertificateManage,
             self::CompanyManage,
+            self::AlumniDirectoryView,
             self::TalentDirectorySearchInternal,
             self::JobBrowse,
             self::JobApplyOwn,

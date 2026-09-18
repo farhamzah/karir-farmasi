@@ -136,6 +136,7 @@ Route::prefix('company')->name('company.')->group(function () {
             Route::post('/applications/{applicationReference}/feedback', [EmployerFeedbackController::class, 'store'])->name('applications.feedback.store');
             Route::post('/jobs/{jobReference}/invite/{talentReference}', [App\Http\Controllers\Company\JobInvitationController::class, 'store'])->name('jobs.invite');
             Route::get('/talent', [TalentSearchController::class, 'company'])->name('talent.index');
+            Route::get('/talent/{reference}/photo', [TalentProfileController::class, 'companyPhoto'])->name('talent.photo');
             Route::get('/talent/{reference}', [TalentProfileController::class, 'company'])->name('talent.show');
             Route::post('/talent/{reference}/shortlist', [TalentSearchController::class, 'shortlist'])->name('talent.shortlist');
             Route::delete('/talent/{reference}/shortlist', [TalentSearchController::class, 'unshortlist'])->name('talent.unshortlist');
@@ -161,7 +162,7 @@ Route::get('/dashboard', CandidateDashboardController::class)
     ->name('dashboard');
 
 Route::prefix('alumni')->name('alumni.')->middleware([
-    'core.principal', 'career.can:'.CareerCapability::CandidateDashboardView->value,
+    'core.principal', 'career.can:'.CareerCapability::AlumniDirectoryView->value,
 ])->group(function () {
     Route::get('/', [AlumniDirectoryController::class, 'index'])->name('index');
     Route::get('/{profile:talent_reference}/photo', [AlumniDirectoryController::class, 'photo'])->name('photo');
@@ -326,5 +327,6 @@ Route::prefix('internal/talent')->name('internal.talent.')->middleware([
     'core.principal', 'career.can:'.CareerCapability::TalentDirectorySearchInternal->value, 'throttle:40,1',
 ])->group(function () {
     Route::get('/', [TalentSearchController::class, 'internal'])->name('index');
+    Route::get('/{reference}/photo', [TalentProfileController::class, 'internalPhoto'])->name('photo');
     Route::get('/{reference}', [TalentProfileController::class, 'internal'])->name('show');
 });

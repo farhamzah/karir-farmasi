@@ -9,8 +9,10 @@ use App\Models\LeadershipAssignment;
 use App\Support\CareerRoleRegistry;
 use App\Talent\TalentAuditRecorder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TalentProfileController extends Controller
 {
@@ -28,6 +30,30 @@ class TalentProfileController extends Controller
     {
         /** @var CareerActor $actor */
         $actor = $request->attributes->get(CareerActor::class);
+        $profile = $this->internalProfile($actor, $reference);
+        $audit->view($actor, $reference);
+
+        return $this->render($profile, 'internal');
+    }
+
+    public function companyPhoto(string $reference): StreamedResponse
+    {
+        $profile = CareerProfile::query()->where('talent_reference', $reference)
+            ->where('discoverable_by_verified_companies', true)->firstOrFail();
+
+        return $this->photoResponse($profile);
+    }
+
+    public function internalPhoto(Request $request, string $reference): StreamedResponse
+    {
+        /** @var CareerActor $actor */
+        $actor = $request->attributes->get(CareerActor::class);
+
+        return $this->photoResponse($this->internalProfile($actor, $reference));
+    }
+
+    private function internalProfile(CareerActor $actor, string $reference): CareerProfile
+    {
         $isAdministrator = in_array(CareerRoleRegistry::Administrator, $actor->roles, true);
         $assignments = LeadershipAssignment::query()->where('actor_core_user_id', $actor->coreUserId)->where('active', true)->get()->filter->isCurrent();
         $programs = $assignments->flatMap(fn (LeadershipAssignment $assignment) => $assignment->scope_type === 'faculty'
@@ -38,9 +64,8 @@ class TalentProfileController extends Controller
             ->when(! $isAdministrator, fn ($query) => $query->where('discoverable_by_internal_leadership', true)
                 ->whereHas('educations', fn ($education) => $education->whereIn('program_name', $programs)))
             ->firstOrFail();
-        $audit->view($actor, $reference);
 
-        return $this->render($profile, 'internal');
+        return $profile;
     }
 
     private function render(CareerProfile $profile, string $audience): Response
@@ -49,6 +74,9 @@ class TalentProfileController extends Controller
 
         return Inertia::render('Talent/Profile', ['audience' => $audience, 'profile' => [
             'professional_name' => $profile->professional_name ?: 'Alumni Farmasi', 'headline' => $profile->headline,
+            'photo_url' => $profile->photo_path !== null
+                ? route($audience === 'company' ? 'company.talent.photo' : 'internal.talent.photo', $profile->talent_reference)
+                : null,
             'summary' => $profile->professional_summary, 'city' => $profile->city, 'open_to_work' => $profile->open_to_work,
             'educations' => $profile->educations->map->only(['institution_name', 'program_name', 'degree', 'end_year'])->all(),
             'experiences' => $profile->experiences->map->only(['type', 'organization', 'title', 'location', 'description'])->all(),
@@ -61,5 +89,15 @@ class TalentProfileController extends Controller
             'preferences' => $profile->jobPreference?->only(['target_roles', 'preferred_locations', 'willing_to_relocate', 'availability_date']),
             'last_confirmed_at' => $profile->last_confirmed_at?->toDateString(),
         ]]);
+    }
+
+    private function photoResponse(CareerProfile $profile): StreamedResponse
+    {
+        abort_if($profile->photo_path === null || ! Storage::disk('career_private')->exists($profile->photo_path), 404);
+
+        return Storage::disk('career_private')->response($profile->photo_path, null, [
+            'Cache-Control' => 'private, no-store',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
     }
 }

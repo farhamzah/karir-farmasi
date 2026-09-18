@@ -16,23 +16,23 @@ class AuthorizationCapabilityMatrixTest extends TestCase
         $mapping = new CareerRoleCapabilities;
         $expected = [
             CareerRoleRegistry::Candidate => [
-                'candidate.dashboard.view', 'certificate.view.own', 'cv.manage.own', 'cv.view.own', 'event.history.own',
+                'alumni.directory.view', 'candidate.dashboard.view', 'certificate.view.own', 'cv.manage.own', 'cv.view.own', 'event.history.own',
                 'event.register.own', 'event.view.published', 'job.apply.own', 'job.browse', 'job.invitation.own',
                 'notification.read.own', 'profile.update.own', 'profile.view.own', 'tracer.submit.own',
             ],
             CareerRoleRegistry::Administrator => [
-                'aggregate.dashboard.view', 'application.operational.view', 'career.admin.access', 'certificate.manage',
+                'aggregate.dashboard.view', 'alumni.directory.view', 'application.operational.view', 'career.admin.access', 'certificate.manage',
                 'company.manage', 'event.aggregate.view', 'event.manage', 'event.participant.manage', 'job.manage', 'job.review',
                 'operational.export', 'registration.approve', 'registration.detail.view',
                 'registration.queue.view', 'registration.reject', 'talent.directory.search.internal', 'template.manage',
                 'tracer.manage',
             ],
             CareerRoleRegistry::Officer => [
-                'aggregate.dashboard.view', 'application.operational.view', 'career.admin.access', 'certificate.manage',
+                'aggregate.dashboard.view', 'alumni.directory.view', 'application.operational.view', 'career.admin.access', 'certificate.manage',
                 'event.aggregate.view', 'event.participant.manage', 'job.manage', 'job.review', 'operational.export',
                 'registration.detail.view', 'registration.queue.view', 'talent.directory.search.internal',
             ],
-            CareerRoleRegistry::Viewer => ['aggregate.dashboard.view', 'event.aggregate.view', 'operational.export', 'talent.directory.search.internal'],
+            CareerRoleRegistry::Viewer => ['aggregate.dashboard.view', 'alumni.directory.view', 'event.aggregate.view', 'operational.export', 'talent.directory.search.internal'],
         ];
 
         foreach ($expected as $role => $capabilityNames) {
