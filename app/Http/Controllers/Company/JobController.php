@@ -9,6 +9,7 @@ use App\Models\CareerJob;
 use App\Models\CompanyUser;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -60,8 +61,11 @@ class JobController extends Controller
     {
         $user = $this->user($request);
         $data = $request->validated();
+        if (blank($data['description'] ?? null)) {
+            throw ValidationException::withMessages(['description' => 'Keterangan lowongan wajib diisi.']);
+        }
         $tags = $data['tags'] ?? null;
-        unset($data['tags'], $data['source_type'], $data['source_name'], $data['source_reference'], $data['received_at'], $data['source_verified'], $data['internal_notes'], $data['source_attachment']);
+        unset($data['tags'], $data['source_type'], $data['source_name'], $data['source_reference'], $data['received_at'], $data['source_verified'], $data['internal_notes'], $data['source_attachment'], $data['flyer'], $data['flyer_alt_text']);
         $data['salary_visible'] = (bool) ($data['salary_visible'] ?? false);
         $data['company_id'] = $user->company_id;
         $data['employer_display_name'] = $user->company->display_name;

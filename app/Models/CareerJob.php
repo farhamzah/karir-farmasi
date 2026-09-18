@@ -21,11 +21,12 @@ class CareerJob extends Model
         'education_requirement', 'experience_requirement', 'salary_min', 'salary_max', 'salary_visible', 'openings',
         'status', 'application_method', 'external_apply_url', 'external_apply_email', 'application_instruction',
         'source_type', 'source_name', 'source_reference', 'received_at', 'source_verified_at',
-        'source_verified_by', 'internal_notes', 'source_attachment_path', 'published_at', 'expires_at', 'review_at',
+        'source_verified_by', 'internal_notes', 'source_attachment_path', 'flyer_path', 'flyer_alt_text',
+        'published_at', 'expires_at', 'review_at',
         'closed_at', 'duplicate_of_job_id', 'possible_duplicate', 'reviewed_by', 'review_note',
     ];
 
-    protected $hidden = ['created_by_reference', 'source_verified_by', 'internal_notes', 'source_attachment_path'];
+    protected $hidden = ['created_by_reference', 'source_verified_by', 'internal_notes', 'source_attachment_path', 'flyer_path'];
 
     protected static function booted(): void
     {

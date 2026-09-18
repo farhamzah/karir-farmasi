@@ -31,7 +31,7 @@ class SaveCareerJobRequest extends FormRequest
             'work_mode' => ['required', 'in:onsite,hybrid,remote'],
             'city' => ['nullable', 'string', 'max:120'],
             'location_text' => ['nullable', 'string', 'max:255'],
-            'description' => ['required', 'string', 'max:10000'],
+            'description' => ['nullable', 'string', 'max:10000'],
             'requirements' => ['nullable', 'string', 'max:10000'],
             'responsibilities' => ['nullable', 'string', 'max:10000'],
             'education_requirement' => ['nullable', 'string', 'max:255'],
@@ -54,6 +54,8 @@ class SaveCareerJobRequest extends FormRequest
             'source_verified' => ['sometimes', 'boolean'],
             'internal_notes' => ['nullable', 'string', 'max:5000'],
             'source_attachment' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'flyer' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120', 'dimensions:min_width=500,max_width=5000,max_height=7000'],
+            'flyer_alt_text' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

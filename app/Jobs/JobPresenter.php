@@ -24,6 +24,8 @@ final class JobPresenter
             'tags' => $job->tags->pluck('label')->all(),
             'possible_duplicate' => $job->possible_duplicate,
             'application_method' => $job->application_method,
+            'flyer_url' => $job->flyer_path ? route('job-flyers.show', $job->public_reference) : null,
+            'flyer_alt_text' => $job->flyer_alt_text,
         ];
     }
 

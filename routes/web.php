@@ -30,6 +30,7 @@ use App\Http\Controllers\EventRegistrationController;
 use App\Http\Controllers\InternalSessionController;
 use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\JobFlyerController;
 use App\Http\Controllers\JobInvitationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OperationalExportController;
@@ -93,6 +94,8 @@ Route::get('/health', fn () => response()->json([
 
 Route::get('/event-flyers/{event:slug}', [EventFlyerController::class, 'show'])
     ->middleware('throttle:60,1')->name('event-flyers.show');
+Route::get('/job-flyers/{reference}', [JobFlyerController::class, 'show'])
+    ->middleware('throttle:60,1')->name('job-flyers.show');
 
 Route::get('/login', fn () => Inertia::render('Login', [
     'coreRecoveryUrl' => config('core_identity.recovery_url'),
@@ -268,6 +271,7 @@ Route::prefix('admin')->name('admin.')->middleware('core.principal')->group(func
         Route::put('/{reference}', [App\Http\Controllers\Admin\JobController::class, 'update'])->middleware('career.can:'.CareerCapability::JobManage->value)->name('update');
         Route::put('/{reference}/status', [App\Http\Controllers\Admin\JobController::class, 'status'])->middleware('career.can:'.CareerCapability::JobReview->value)->name('status');
         Route::get('/{reference}/source-attachment', [App\Http\Controllers\Admin\JobController::class, 'sourceAttachment'])->middleware('career.can:'.CareerCapability::JobReview->value)->name('source-attachment');
+        Route::get('/{reference}/flyer', [JobFlyerController::class, 'admin'])->middleware('career.can:'.CareerCapability::JobManage->value)->name('flyer');
     });
     Route::get('/companies', [CompanyController::class, 'index'])
         ->middleware('career.can:'.CareerCapability::CompanyManage->value)->name('companies.index');

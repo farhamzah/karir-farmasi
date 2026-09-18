@@ -25,7 +25,7 @@ class JobController extends Controller
             'reference' => $job->public_reference, 'title' => $job->title, 'employer' => $job->employer_display_name,
             'source' => $job->source_name, 'status' => $job->status, 'expires_at' => $job->expires_at?->toDateString(),
             'possible_duplicate' => $job->possible_duplicate, 'applications_count' => $job->applications_count,
-            'reports_count' => $job->reports_count, 'tags' => $job->tags->pluck('label')->all(),
+            'reports_count' => $job->reports_count, 'tags' => $job->tags->pluck('label')->all(), 'has_flyer' => $job->flyer_path !== null,
         ])->all()]);
     }
 
@@ -43,7 +43,11 @@ class JobController extends Controller
     {
         $job = CareerJob::with('tags')->where('public_reference', $reference)->firstOrFail();
 
-        return Inertia::render('Admin/Jobs/Edit', ['job' => $job->toArray() + ['tags_text' => $job->tags->pluck('label')->implode(', ')]]);
+        return Inertia::render('Admin/Jobs/Edit', ['job' => $job->toArray() + [
+            'tags_text' => $job->tags->pluck('label')->implode(', '),
+            'has_flyer' => $job->flyer_path !== null,
+            'flyer_url' => $job->flyer_path ? route('admin.jobs.flyer', $job->public_reference) : null,
+        ]]);
     }
 
     public function update(SaveCareerJobRequest $request, string $reference, JobWorkflow $workflow): RedirectResponse
@@ -81,7 +85,13 @@ class JobController extends Controller
         }
         $tags = $data['tags'] ?? null;
         $sourceVerified = (bool) ($data['source_verified'] ?? false);
-        unset($data['tags'], $data['source_attachment'], $data['source_verified']);
+        unset($data['tags'], $data['source_attachment'], $data['flyer'], $data['source_verified']);
+        if (blank($data['description'] ?? null) && ! $request->hasFile('flyer') && blank($job->flyer_path)) {
+            throw ValidationException::withMessages([
+                'description' => 'Isi keterangan lowongan atau unggah flyer.',
+                'flyer' => 'Unggah flyer jika keterangan lowongan dikosongkan.',
+            ]);
+        }
         /** @var CareerActor $actor */ $actor = $request->attributes->get(CareerActor::class);
         if (! $job->exists) {
             $data['company_id'] = null;
@@ -96,6 +106,16 @@ class JobController extends Controller
                 Storage::disk('career_private')->delete($job->source_attachment_path);
             }
             $data['source_attachment_path'] = $request->file('source_attachment')->store('jobs/source-evidence', 'career_private');
+        }
+        if ($request->hasFile('flyer')) {
+            if ($job->flyer_path) {
+                Storage::disk('career_private')->delete($job->flyer_path);
+            }
+            $data['flyer_path'] = $request->file('flyer')->store('jobs/flyers', 'career_private');
+            $data['flyer_alt_text'] = $data['flyer_alt_text'] ?: 'Flyer lowongan '.$data['title'].' dari '.$data['employer_display_name'];
+        }
+        if (blank($data['description'] ?? null)) {
+            $data['description'] = 'Informasi lengkap tersedia pada flyer lowongan.';
         }
         $data['salary_visible'] = (bool) ($data['salary_visible'] ?? false);
         $data['status'] = 'draft';
