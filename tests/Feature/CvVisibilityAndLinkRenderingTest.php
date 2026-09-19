@@ -83,4 +83,39 @@ class CvVisibilityAndLinkRenderingTest extends TestCase
             $this->assertStringNotContainsString($rawUrl, $visibleText);
         }
     }
+
+    public function test_pharmacy_impact_pdf_uses_the_same_navy_structure_as_its_preview(): void
+    {
+        $profile = $this->profile();
+        $profile->update([
+            'linkedin_url' => 'https://linkedin.example/impact',
+            'portfolio_url' => 'https://portfolio.example/impact',
+        ]);
+        $profile->projects()->create([
+            'title' => 'Proyek Edukasi Kefarmasian',
+            'description' => 'Materi edukasi penggunaan obat untuk masyarakat.',
+            'project_url' => 'https://project.example/impact',
+            'sort_order' => 0,
+        ]);
+        $payload = $this->cvPayload($profile, 'cv-06');
+        $payload['field_visibility'] = array_fill_keys(['photo', 'city', 'email', 'whatsapp', 'linkedin_url', 'portfolio_url'], true);
+
+        $this->withSession(['core_principal' => $this->principal()])->post(route('cv.store'), $payload)->assertRedirect();
+
+        $snapshot = app(CareerCvProjection::class)->preview(CareerCv::sole());
+        $html = view('cv.document', ['cv' => $snapshot, 'photoDataUri' => null])->render();
+        $visibleText = html_entity_decode(strip_tags($html));
+
+        $this->assertStringContainsString('class="paper cv-06"', $html);
+        $this->assertStringContainsString('class="impact-header"', $html);
+        $this->assertStringContainsString('class="impact-body"', $html);
+        $this->assertStringContainsString('Dokumen &amp; tautan profesional', $html);
+        $this->assertStringNotContainsString('class="impact-photo"', $html);
+        foreach (['LinkedIn', 'Lihat Portofolio', 'Lihat Proyek'] as $label) {
+            $this->assertStringContainsString($label, $visibleText);
+        }
+        foreach (['https://linkedin.example', 'https://portfolio.example', 'https://project.example'] as $rawUrl) {
+            $this->assertStringNotContainsString($rawUrl, $visibleText);
+        }
+    }
 }

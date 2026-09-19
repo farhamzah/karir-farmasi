@@ -124,30 +124,39 @@ export default function CvPaper({ cv, photoUrl = '/profile/photo' }: { cv: CvPap
         <div className="cv-section-items">{section.items.map((item, index) => itemCard(section.key, item, index))}</div>
     </section>;
     if (cv.template.key === 'cv-06') {
-        const sidebarKeys = new Set(['skills', 'languages', 'preferences']);
-        const sidebarSections = cv.sections.filter(section => sidebarKeys.has(section.key));
-        const mainSections = cv.sections.filter(section => ! sidebarKeys.has(section.key) && section.key !== 'summary');
+        const leftKeys = new Set(['education', 'experience', 'publications', 'projects', 'organizations']);
+        const rightKeys = new Set(['skills', 'certifications', 'event_certificates', 'events', 'languages', 'preferences']);
+        const leftSections = cv.sections.filter(section => leftKeys.has(section.key));
+        const rightSections = cv.sections.filter(section => rightKeys.has(section.key));
         const summary = sectionsByKey.get('summary')?.items[0]?.description;
+        const additionalLinks = [
+            ...((sectionsByKey.get('projects')?.items ?? []).filter(item => typeof item.project_url === 'string')
+                .map(item => ({ href: String(item.project_url), label: 'Lihat Proyek', icon: '▰' }))),
+            ...((sectionsByKey.get('publications')?.items ?? []).filter(item => typeof item.url === 'string')
+                .map(item => ({ href: String(item.url), label: String(item.url).toLowerCase().includes('scholar.google') ? 'Google Scholar' : 'Lihat Publikasi', icon: '▤' }))),
+        ];
+        const documentLinks = [...onlineLinks, ...additionalLinks]
+            .filter((link, index, links) => links.findIndex(candidate => candidate.href === link.href) === index)
+            .slice(0, 8);
 
-        return <section className={`${classes} cv-web-portfolio`} data-template-key={cv.template.key}>
-            <aside className="cv-web-sidebar">
-                <div className="cv-web-script">Pharmacy<br />for a Healthier<br />Tomorrow</div>
-                <div className="cv-web-photo">{showPhoto && cv.has_photo ? <img src={photoUrl} alt="Foto profil" /> : <span>{initials}</span>}</div>
-                <div className="cv-open-card"><b>Open to Work</b><span>Siap berkontribusi di bidang pelayanan dan industri kefarmasian</span></div>
-                <section className="cv-side-block"><h3>Kontak</h3>{contacts.filter(contact => ['city', 'email', 'whatsapp'].includes(contact.key)).map(contact => <p key={contact.key}><i>{contact.key === 'city' ? '⌖' : contact.key === 'email' ? '@' : '☎'}</i>{contact.href ? <a href={contact.href}>{contact.label}</a> : contact.label}</p>)}</section>
-                {onlineLinks.length > 0 && <section className="cv-side-block"><h3>Profil Online</h3><div className="cv-online-grid">{onlineLinks.map(link => <a href={link.href} key={`${link.label}-${link.href}`} target="_blank" rel="noreferrer"><i>{link.icon}</i>{link.label}</a>)}</div></section>}
-                {sidebarSections.map((section, index) => <section className={`cv-side-block side-${section.key}`} key={section.key}><h3>{shortSectionTitle(section.title)}</h3><div className="cv-side-list">{section.items.map((item, itemIndex) => itemCard(section.key, item, itemIndex))}</div></section>)}
-                <blockquote>Pelayanan kefarmasian yang berkualitas dimulai dari apoteker yang peduli dan terus belajar.</blockquote>
-            </aside>
-            <div className="cv-web-main">
-                <header className="cv-web-hero">
-                    <div><h1>{cv.professional_name}</h1>{cv.headline && <h2>{cv.headline}</h2>}</div>
-                    <p>Ilmu kefarmasian untuk masyarakat yang lebih baik</p>
-                </header>
-                {summary && <section className="cv-web-summary"><span>“</span><p>{String(summary)}</p></section>}
-                <div className="cv-web-sections">{mainSections.map((section, index) => renderSection(section, index))}</div>
-                <footer className="cv-web-footer">Apoteker untuk kesehatan yang lebih baik</footer>
+        return <section className={`${classes} cv-impact-document${showPhoto && cv.has_photo ? '' : ' no-photo'}`} data-template-key={cv.template.key}>
+            <header className="cv-impact-header">
+                <div className="cv-impact-brand"><span>PHARMACY ALUMNI</span><i /></div>
+                <div className="cv-impact-identity">
+                    <h1>{cv.professional_name}</h1>
+                    {cv.headline && <h2>{cv.headline}</h2>}
+                    <div className="cv-impact-contact">{contacts.filter(contact => ['email', 'whatsapp', 'city'].includes(contact.key)).map(contact => <span key={contact.key}><i aria-hidden="true">{contact.key === 'email' ? '✉' : contact.key === 'whatsapp' ? '●' : '⌖'}</i>{contact.href ? <a href={contact.href}>{contact.label}</a> : contact.label}</span>)}</div>
+                </div>
+                <div className="cv-impact-motto">SCIENCE FOR A HEALTHIER TOMORROW</div>
+                {showPhoto && cv.has_photo && <div className="cv-impact-photo"><img src={photoUrl} alt="Foto profil" /></div>}
+            </header>
+            {summary && <section className="cv-impact-summary"><div>{renderSection({ key: 'summary', title: sectionsByKey.get('summary')?.title ?? 'Ringkasan Profesional', items: [{ description: summary }] }, 0)}</div><blockquote>Ilmu kefarmasian adalah jembatan kecil menuju masyarakat yang lebih sehat dan bermakna.</blockquote></section>}
+            <div className="cv-impact-body">
+                <div className="cv-impact-column cv-impact-main">{leftSections.map((section, index) => renderSection(section, index))}</div>
+                <aside className="cv-impact-column cv-impact-side">{rightSections.map((section, index) => renderSection(section, index))}</aside>
             </div>
+            {documentLinks.length > 0 && <section className="cv-impact-links"><h3>Dokumen &amp; Tautan Profesional</h3><div>{documentLinks.map(link => <a href={link.href} key={`${link.label}-${link.href}`} target="_blank" rel="noreferrer"><i>{link.icon}</i>{link.label}</a>)}</div></section>}
+            <footer className="cv-impact-footer"><span>DISCIPLINE IN SCIENCE · COMPASSION IN ACTION</span><i /><em>Farmasi untuk kehidupan yang lebih baik</em></footer>
         </section>;
     }
     const documentBody = cv.template.key === 'cv-04'

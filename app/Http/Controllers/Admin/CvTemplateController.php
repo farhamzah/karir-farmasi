@@ -24,7 +24,7 @@ class CvTemplateController extends Controller
 
         return Inertia::render('Admin/CvTemplates/Index', [
             'templates' => $templates,
-            'baseTemplates' => CvTemplate::query()->whereIn('key', ['cv-01', 'cv-02', 'cv-03', 'cv-04', 'cv-05'])
+            'baseTemplates' => CvTemplate::query()->whereIn('key', ['cv-01', 'cv-02', 'cv-03', 'cv-04', 'cv-05', 'cv-06'])
                 ->where('active', true)->orderBy('display_order')->get(['key', 'name']),
         ]);
     }
@@ -213,12 +213,22 @@ class CvTemplateController extends Controller
         return [
             'professional_name' => 'Alya Nūr Pramesti, S.Farm.', 'headline' => 'Profesional farmasi yang teliti, adaptif, dan berorientasi pada mutu',
             'email' => 'alya.nur@fixture.invalid', 'whatsapp' => '+62 812 0000 006', 'city' => 'Karawang', 'has_photo' => false,
+            'linkedin_url' => 'https://linkedin.fixture.invalid/alya', 'portfolio_url' => 'https://portfolio.fixture.invalid/alya',
             'sections' => [
-                ['key' => 'summary', 'title' => 'Profil', 'items' => [['description' => 'Alumni Farmasi UBP dengan pengalaman sintetis dalam pelayanan, pengendalian mutu, organisasi, dan riset terapan.']]],
-                ['key' => 'experience', 'title' => 'Pengalaman', 'items' => [['title' => 'Praktik Kerja Profesi Apoteker', 'organization' => 'Instalasi Farmasi Sintetis', 'location' => 'Karawang', 'start_date' => '2025-01-01', 'end_date' => '2025-06-30', 'description' => 'Mendukung pengelolaan obat dan edukasi pasien menggunakan data pengujian sintetis.']]],
+                ['key' => 'summary', 'title' => 'Ringkasan Profesional', 'items' => [['description' => 'Alumni Farmasi UBP dengan pengalaman sintetis dalam pelayanan, pengendalian mutu, organisasi, dan riset terapan. Berorientasi pada kualitas, detail, dan kolaborasi untuk memberi dampak kesehatan yang bermakna.']]],
                 ['key' => 'education', 'title' => 'Pendidikan', 'items' => [['degree' => 'Sarjana Farmasi', 'program_name' => 'Farmasi', 'institution_name' => 'Universitas Buana Perjuangan Karawang', 'end_year' => 2025]]],
-                ['key' => 'skills', 'title' => 'Keahlian', 'items' => [['name' => 'Pelayanan kefarmasian'], ['name' => 'Dokumentasi mutu'], ['name' => 'Komunikasi pasien']]],
+                ['key' => 'experience', 'title' => 'Pengalaman', 'items' => [
+                    ['title' => 'Praktik Kerja Profesi Apoteker', 'organization' => 'Instalasi Farmasi Sintetis', 'location' => 'Karawang', 'start_date' => '2025-01-01', 'end_date' => '2025-06-30', 'description' => 'Mendukung pengelolaan obat dan edukasi pasien menggunakan data pengujian sintetis.'],
+                    ['title' => 'Asisten Riset Formulasi', 'organization' => 'Laboratorium Farmasi UBP', 'location' => 'Karawang', 'start_date' => '2024-06-01', 'end_date' => '2024-12-01', 'description' => 'Membantu pengujian stabilitas, dokumentasi hasil, dan analisis data formulasi.'],
+                ]],
                 ['key' => 'publications', 'title' => 'Riset & Publikasi', 'items' => [['title' => 'Kajian Stabilitas Sediaan Farmasi Sintetis', 'publication_name' => 'Prosiding Uji Lokal', 'published_on' => '2025-08-01']]],
+                ['key' => 'projects', 'title' => 'Proyek & Karya', 'items' => [['title' => 'Edukasi DAGUSIBU untuk Masyarakat', 'category' => 'Edukasi Kesehatan', 'description' => 'Media edukasi penggunaan dan penyimpanan obat yang aman.', 'project_url' => 'https://portfolio.fixture.invalid/dagusibu']]],
+                ['key' => 'organizations', 'title' => 'Organisasi & Kepemimpinan', 'items' => [['role' => 'Koordinator Divisi Pendidikan', 'organization' => 'Organisasi Mahasiswa Farmasi', 'start_date' => '2023-01-01', 'end_date' => '2024-01-01', 'description' => 'Mengoordinasikan kegiatan pengembangan akademik dan kolaborasi anggota.']]],
+                ['key' => 'skills', 'title' => 'Kompetensi Utama', 'items' => [['name' => 'Pelayanan kefarmasian', 'level' => 'Mahir'], ['name' => 'Dokumentasi mutu', 'level' => 'Mahir'], ['name' => 'Komunikasi pasien', 'level' => 'Menengah'], ['name' => 'Regulatory affairs', 'level' => 'Menengah']]],
+                ['key' => 'certifications', 'title' => 'Sertifikasi', 'items' => [['title' => 'Pelatihan Pelayanan Kefarmasian', 'issuer' => 'Fakultas Farmasi UBP', 'issue_date' => '2025-07-01', 'credential_url' => 'https://certificate.fixture.invalid/pelayanan']]],
+                ['key' => 'events', 'title' => 'Event & Seminar', 'items' => [['title' => 'Seminar Inovasi Farmasi', 'organizer' => 'Fakultas Farmasi UBP', 'date' => '12 Agu 2025', 'role' => 'Peserta']]],
+                ['key' => 'languages', 'title' => 'Bahasa', 'items' => [['language' => 'Bahasa Indonesia', 'proficiency' => 'Native'], ['language' => 'Bahasa Inggris', 'proficiency' => 'Profesional']]],
+                ['key' => 'preferences', 'title' => 'Minat Karier', 'items' => [['target_roles' => 'Pelayanan Kefarmasian, Regulatory Affairs, Industri Farmasi', 'preferred_locations' => 'Karawang, Jakarta']]],
             ],
         ];
     }
