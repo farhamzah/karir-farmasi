@@ -1873,6 +1873,20 @@ input,textarea,select { min-height:45px;border:1px solid #cbd6d0;border-radius:9
 .cv-impact-footer i { height:1px;background:#7993a1; }
 .cv-impact-footer em { font:italic 10px/1 Georgia,serif;letter-spacing:0; }
 
+/* Bulk alumni registration approval */
+.bulk-approval-bar { display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 14px;padding:13px 15px;border:1px solid #bcd5c9;border-radius:13px;background:linear-gradient(110deg,#f4faf7,#e7f2ec);box-shadow:var(--shadow-sm); }
+.bulk-select-all { min-width:0;display:flex;align-items:center;gap:12px;cursor:pointer; }
+.bulk-select-all input,.registration-check input { width:18px;height:18px;flex:none;accent-color:var(--sk-700);cursor:pointer; }
+.bulk-select-all span { display:grid;gap:2px; }
+.bulk-select-all strong { color:var(--sk-900);font-size:12px; }
+.bulk-select-all small { color:var(--muted);font-size:10px; }
+.bulk-approval-bar .primary-button { min-width:170px;justify-content:center; }
+.registration-row.bulk-enabled { grid-template-columns:24px minmax(220px,1fr) auto auto auto; }
+.registration-row.selected { border-color:#72aa90;background:#f1f8f4;box-shadow:0 0 0 2px rgba(31,107,79,.08); }
+.registration-check { width:24px;height:38px;display:grid;place-items:center; }
+.registration-review { color:var(--sk-700);font-size:10px;font-weight:750;white-space:nowrap; }
+.registration-review:hover { color:var(--sk-950); }
+
 @media(max-width:760px) {
     .cv-paper.cv-06.cv-impact-document { width:calc(100% - 18px);min-height:auto;padding:10px; }
     .cv-impact-header { min-height:0;display:block;padding:22px 18px; }
@@ -1889,6 +1903,11 @@ input,textarea,select { min-height:45px;border:1px solid #cbd6d0;border-radius:9
     .cv-impact-side { background:transparent; }
     .cv-impact-footer { grid-template-columns:1fr;text-align:center; }
     .cv-impact-footer i { display:none; }
+    .bulk-approval-bar { align-items:stretch;flex-direction:column; }
+    .bulk-approval-bar .primary-button { width:100%; }
+    .registration-row.bulk-enabled { grid-template-columns:24px 1fr auto; }
+    .registration-row.bulk-enabled code { grid-column:2/-1; }
+    .registration-row.bulk-enabled .registration-review { grid-column:2; }
 }
 
 @media print {

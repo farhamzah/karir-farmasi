@@ -14,8 +14,11 @@ use Inertia\Response;
 
 class RegistrationController extends Controller
 {
-    public function index(Request $request, CoreAlumniGateway $gateway): Response
-    {
+    public function index(
+        Request $request,
+        CoreAlumniGateway $gateway,
+        CareerAuthorization $authorization,
+    ): Response {
         $status = $request->string('status')->toString() ?: 'pending';
 
         try {
@@ -25,11 +28,15 @@ class RegistrationController extends Controller
             $error = $exception->getMessage();
         }
 
+        /** @var CareerActor $actor */
+        $actor = $request->attributes->get(CareerActor::class);
+
         return Inertia::render('Admin/Registrations', [
             'registrations' => $result['data'],
             'pagination' => $result['meta'],
             'activeStatus' => $status,
             'loadError' => $error ?? null,
+            'canApprove' => $authorization->allows($actor, CareerCapability::RegistrationApprove),
         ]);
     }
 

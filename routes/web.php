@@ -318,6 +318,9 @@ Route::prefix('admin')->name('admin.')->middleware('core.principal')->group(func
     Route::post('/registrations/{reference}/approve', [RegistrationDecisionController::class, 'approve'])
         ->middleware('career.can:'.CareerCapability::RegistrationApprove->value)
         ->name('registrations.approve');
+    Route::post('/registrations/bulk-approve', [RegistrationDecisionController::class, 'bulkApprove'])
+        ->middleware('career.can:'.CareerCapability::RegistrationApprove->value)
+        ->name('registrations.bulk-approve');
     Route::post('/registrations/{reference}/reject', [RegistrationDecisionController::class, 'reject'])
         ->middleware('career.can:'.CareerCapability::RegistrationReject->value)
         ->name('registrations.reject');

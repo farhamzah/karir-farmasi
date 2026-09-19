@@ -3,12 +3,17 @@
 namespace Tests\Fakes;
 
 use App\Contracts\CoreAlumniGateway;
+use App\Exceptions\CoreAlumniOperationFailed;
 
 class FakeCoreAlumniGateway implements CoreAlumniGateway
 {
     public array $registered = [];
 
     public ?array $approved = null;
+
+    public array $approvals = [];
+
+    public array $failedApprovals = [];
 
     public ?array $rejected = null;
 
@@ -36,15 +41,23 @@ class FakeCoreAlumniGateway implements CoreAlumniGateway
 
     public function registration(string $reference): array
     {
-        return ['reference' => $reference, 'student_number' => 'SYN-001',
-            'full_name' => 'Alumni Sintetis', 'graduation_year' => 2025, 'status' => 'pending'];
+        $suffix = substr($reference, -3);
+
+        return ['reference' => $reference, 'student_number' => 'SYN-'.$suffix,
+            'full_name' => $reference === 'KARIR-SYN-001' ? 'Alumni Sintetis' : 'Alumni Sintetis '.$suffix,
+            'graduation_year' => 2025, 'status' => 'pending'];
     }
 
     public function approve(string $reference, string $approverCoreUserId): array
     {
-        $this->approved = [$reference, $approverCoreUserId];
+        if (in_array($reference, $this->failedApprovals, true)) {
+            throw new CoreAlumniOperationFailed('Approval sintetis gagal.');
+        }
 
-        return ['reference' => $reference, 'status' => 'approved', 'core_user_id' => 'fixture-alumni-core-001'];
+        $this->approved = [$reference, $approverCoreUserId];
+        $this->approvals[] = [$reference, $approverCoreUserId];
+
+        return ['reference' => $reference, 'status' => 'approved', 'core_user_id' => 'fixture-alumni-core-'.strtolower(substr($reference, -3))];
     }
 
     public function reject(string $reference, string $approverCoreUserId, string $reason): array

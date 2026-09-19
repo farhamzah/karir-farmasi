@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Contracts\CoreAlumniGateway;
 use App\Models\CareerProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Fakes\FakeCoreAlumniGateway;
 use Tests\TestCase;
 
@@ -31,7 +32,10 @@ class AdminRegistrationWorkflowTest extends TestCase
     public function test_admin_lists_and_approves_using_actor_from_server_session(): void
     {
         $session = ['core_principal' => $this->principal(['admin-karir'], 'core-admin-001')];
-        $this->withSession($session)->get(route('admin.registrations.index'))->assertOk();
+        $this->withSession($session)->get(route('admin.registrations.index'))->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Admin/Registrations')
+                ->where('canApprove', true));
 
         $this->withSession($session)->post(route('admin.registrations.approve', 'KARIR-SYN-001'), [
             'approver_core_user_id' => 'spoofed-browser-id',
@@ -43,6 +47,55 @@ class AdminRegistrationWorkflowTest extends TestCase
         $this->assertSame(2025, $profile->graduation_year);
         $this->assertSame('Alumni Sintetis', $profile->professional_name);
         $this->assertTrue($profile->visible_in_alumni_directory);
+    }
+
+    public function test_admin_can_bulk_approve_selected_pending_registrations(): void
+    {
+        $session = ['core_principal' => $this->principal(['admin-karir'], 'core-admin-001')];
+
+        $this->withSession($session)->post(route('admin.registrations.bulk-approve'), [
+            'references' => ['KARIR-SYN-001', 'KARIR-SYN-002'],
+        ])->assertSessionHasNoErrors()
+            ->assertSessionHas('success', '2 pendaftaran berhasil disetujui.')
+            ->assertRedirect();
+
+        $this->assertSame([
+            ['KARIR-SYN-001', 'core-admin-001'],
+            ['KARIR-SYN-002', 'core-admin-001'],
+        ], $this->gateway->approvals);
+        $this->assertDatabaseHas('career_profiles', [
+            'core_user_id' => 'fixture-alumni-core-001', 'alumni_number' => 'SYN-001',
+        ]);
+        $this->assertDatabaseHas('career_profiles', [
+            'core_user_id' => 'fixture-alumni-core-002', 'alumni_number' => 'SYN-002',
+        ]);
+    }
+
+    public function test_bulk_approval_requires_selection_and_approve_capability(): void
+    {
+        $this->withSession(['core_principal' => $this->principal(['admin-karir'], 'core-admin-001')])
+            ->post(route('admin.registrations.bulk-approve'), ['references' => []])
+            ->assertSessionHasErrors('references');
+
+        $this->withSession(['core_principal' => $this->principal(['viewer-karir'], 'core-viewer-001')])
+            ->post(route('admin.registrations.bulk-approve'), ['references' => ['KARIR-SYN-001']])
+            ->assertForbidden();
+    }
+
+    public function test_bulk_approval_continues_when_one_core_decision_fails(): void
+    {
+        $this->gateway->failedApprovals = ['KARIR-SYN-002'];
+
+        $this->withSession(['core_principal' => $this->principal(['admin-karir'], 'core-admin-001')])
+            ->post(route('admin.registrations.bulk-approve'), [
+                'references' => ['KARIR-SYN-001', 'KARIR-SYN-002', 'KARIR-SYN-003'],
+            ])->assertSessionHas('success', '2 pendaftaran berhasil disetujui.')
+            ->assertSessionHasErrors('bulk');
+
+        $this->assertSame([
+            ['KARIR-SYN-001', 'core-admin-001'],
+            ['KARIR-SYN-003', 'core-admin-001'],
+        ], $this->gateway->approvals);
     }
 
     public function test_admin_rejects_with_reason_and_session_actor(): void
