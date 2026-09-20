@@ -50,7 +50,7 @@ final class CvPublisher
     {
         return collect($preview)->only([
             'professional_name', 'headline', 'email', 'whatsapp', 'city', 'linkedin_url',
-            'portfolio_url', 'has_photo', 'template', 'sections',
+            'portfolio_url', 'has_photo', 'open_to_work', 'template', 'sections',
         ])->all();
     }
 

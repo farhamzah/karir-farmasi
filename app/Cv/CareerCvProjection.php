@@ -59,6 +59,7 @@ final class CareerCvProjection
             'linkedin_url' => $visibleFields['linkedin_url'] ? $profile->linkedin_url : null,
             'portfolio_url' => $visibleFields['portfolio_url'] ? $profile->portfolio_url : null,
             'has_photo' => $visibleFields['photo'] && filled($profile->photo_path),
+            'open_to_work' => (bool) $profile->open_to_work,
             'template' => ['key' => $cv->templateVersion->template->key, 'name' => $cv->templateVersion->template->name,
                 'version' => $cv->templateVersion->version, 'configuration' => $this->configuration->normalized($cv->templateVersion->configuration)],
             'sections' => $sections,

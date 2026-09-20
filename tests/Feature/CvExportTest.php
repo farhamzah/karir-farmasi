@@ -37,13 +37,13 @@ class CvExportTest extends TestCase
         $profile = $this->profile();
         $session = ['core_principal' => $this->principal()];
         $profile->skills()->create(['name' => 'Unicode 日本語 العربية', 'sort_order' => 8]);
-        foreach (['cv-01', 'cv-02', 'cv-03', 'cv-04', 'cv-05', 'cv-06', 'cv-07', 'cv-08'] as $key) {
+        foreach (['cv-01', 'cv-02', 'cv-03', 'cv-04', 'cv-05', 'cv-06', 'cv-07', 'cv-08', 'cv-09'] as $key) {
             $this->withSession($session)->post(route('cv.store'), $this->cvPayload($profile, $key, 'CV '.$key));
             $cv = CareerCv::latest('id')->firstOrFail();
             $this->withSession($session)->get(route('cv.pdf', $cv))->assertOk()->assertDownload('cv-'.$key.'.pdf');
         }
 
-        $this->assertSame(['cv-01', 'cv-02', 'cv-03', 'cv-04', 'cv-05', 'cv-06', 'cv-07', 'cv-08'], collect($renderer->snapshots)->pluck('template.key')->all());
+        $this->assertSame(['cv-01', 'cv-02', 'cv-03', 'cv-04', 'cv-05', 'cv-06', 'cv-07', 'cv-08', 'cv-09'], collect($renderer->snapshots)->pluck('template.key')->all());
         $cv = CareerCv::firstOrFail();
         $this->withSession(['core_principal' => $this->principal('other')])->get(route('cv.pdf', $cv))->assertNotFound();
     }

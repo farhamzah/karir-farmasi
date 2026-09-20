@@ -40,6 +40,6 @@ class CvTemplateSafetyTest extends TestCase
         CvTemplateVersion::create(['cv_template_id' => $bound->cv_template_id, 'version' => '1.1.0',
             'configuration' => $bound->configuration, 'status' => 'published', 'published_at' => now()]);
         $this->assertSame($bound->id, CareerCv::sole()->fresh()->cv_template_version_id);
-        $this->assertCount(8, app(CvTemplateCatalog::class)->published());
+        $this->assertCount(9, app(CvTemplateCatalog::class)->published());
     }
 }

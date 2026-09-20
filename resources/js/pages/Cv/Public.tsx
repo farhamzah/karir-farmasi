@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 import CvPaper, { type CvPaperData } from './CvPaper';
+import WebPortfolio from './WebPortfolio';
 
 type Share = { url: string; allow_pdf_download: boolean; pdf_url: string | null };
 
@@ -11,6 +12,8 @@ export default function PublicCv({ cv, share, photoUrl }: { cv: CvPaperData; sha
     };
     const encoded = encodeURIComponent(share.url);
     const title = encodeURIComponent(`CV ${cv.professional_name}`);
+
+    if (cv.template.key === 'cv-09') return <><Head title={`Portfolio ${cv.professional_name}`}><meta name="robots" content="noindex,nofollow" /><meta name="referrer" content="no-referrer" /></Head><main className="public-web-portfolio-page"><WebPortfolio cv={cv} photoUrl={photoUrl ?? undefined} actions={{ pdfUrl: share.allow_pdf_download ? share.pdf_url : null, onShare: nativeShare, onPrint: () => window.print() }} /></main></>;
 
     const navigation = cv.sections.filter(section => ['education','experience','skills','events','event_certificates','projects','certifications'].includes(section.key));
     const portfolioSections = cv.sections.filter(section => ['events','event_certificates'].includes(section.key));

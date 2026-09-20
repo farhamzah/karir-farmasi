@@ -70,12 +70,14 @@ class CvVisibilityAndLinkRenderingTest extends TestCase
         $profile->update(['linkedin_url' => 'https://linkedin.example/alya', 'portfolio_url' => 'https://portfolio.example/alya']);
         $profile->projects()->create(['title' => 'Portofolio Edukasi Obat', 'description' => 'Materi penggunaan obat yang aman.', 'project_url' => 'https://project.example/raw', 'sort_order' => 0]);
         $profile->publications()->create(['title' => 'Kajian Farmasi Klinis', 'publication_name' => 'Jurnal Sintetis', 'url' => 'https://scholar.google.example/raw', 'sort_order' => 0]);
-        $payload = $this->cvPayload($profile, 'cv-03');
+        $payload = $this->cvPayload($profile, 'cv-09');
         $payload['field_visibility'] = array_fill_keys(['photo', 'city', 'email', 'whatsapp', 'linkedin_url', 'portfolio_url'], true);
         $this->withSession(['core_principal' => $this->principal()])->post(route('cv.store'), $payload)->assertRedirect();
 
         $snapshot = app(CareerCvProjection::class)->preview(CareerCv::sole());
-        $visibleText = html_entity_decode(strip_tags(view('cv.document', ['cv' => $snapshot, 'photoDataUri' => null])->render()));
+        $html = view('cv.document', ['cv' => $snapshot, 'photoDataUri' => null])->render();
+        $visibleText = html_entity_decode(strip_tags($html));
+        $this->assertStringContainsString('class="paper cv-09"', $html);
         foreach (['LinkedIn', 'Portofolio', 'Proyek', 'Google Scholar'] as $label) {
             $this->assertStringContainsString($label, $visibleText);
         }
