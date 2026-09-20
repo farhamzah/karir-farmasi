@@ -177,6 +177,7 @@ input:focus,textarea:focus { outline:2px solid #90b7a4; border-color:#1f6b4f; }
 .template-thumb.cv-05 { border-left:4px solid #5b6b75; }
 .template-thumb.cv-06 { border-top:22px solid #0b3049;background:linear-gradient(90deg,#fff 0 66%,#eef3f6 66%); }
 .template-thumb.cv-07 { border:2px solid #b89a54;background:linear-gradient(90deg,#fffaf0 0 68%,#252a2a 68%); }
+.template-thumb.cv-08 { border:2px solid #6c1d25;background:linear-gradient(180deg,#641b23 0 28%,#fffaf3 28% 89%,#641b23 89%); }
 .template-current { position:absolute;right:10px;top:8px;padding:4px 7px;border-radius:99px;background:#1f6b4f;color:#fff;font-size:8px;text-transform:uppercase;letter-spacing:.08em; }
 
 .safe-badge { padding:9px 13px;border-radius:99px;background:#e3eee7;color:#1f6b4f;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase; }
@@ -1987,6 +1988,108 @@ input,textarea,select { min-height:45px;border:1px solid #cbd6d0;border-radius:9
 .cv-gold-side-footer { display:flex;align-items:center;gap:10px;margin-top:auto;padding-top:14px;border-top:1px solid #c7aa65;color:#e2c474; }
 .cv-gold-side-footer span { width:38px;height:38px;display:grid;place-items:center;border:1px solid #d8bb70;border-radius:50%;font:700 6px/1 Inter,sans-serif; }
 .cv-gold-side-footer b { font:700 7px/1.45 Inter,sans-serif;letter-spacing:.18em; }
+
+/* CV 08 — Burgundy Legacy editorial A4 */
+.template-miniature.cv-08,.cv-card-cover.cv-08 { border:2px solid #6c1d25;background:linear-gradient(180deg,#641b23 0 28%,#fffaf3 28% 89%,#641b23 89%); }
+.cv-paper.cv-08.cv-burgundy-document { --wine:#621b23;--wine-deep:#421115;--cream:#fffaf3;--gold:#caa46c;width:min(940px,calc(100% - 40px));min-height:1329px;display:flex;flex-direction:column;margin:0 auto 30px;padding:0;border:0;background:radial-gradient(circle at 30% 15%,#fff,#fffaf3 65%,#f6eee3);color:#302624;font-family:Georgia,"Times New Roman",serif;box-shadow:0 18px 70px rgba(49,21,19,.18);overflow:hidden; }
+.cv-burgundy-hero { position:relative;min-height:270px;display:grid;grid-template-columns:250px minmax(0,1fr) 135px;gap:30px;padding:20px 26px;background:radial-gradient(circle at 80% 15%,#792b31,#57171e 55%,#3f1115);color:#fff7e9;overflow:hidden; }
+.cv-burgundy-hero::after { content:"❧";position:absolute;right:25px;bottom:-25px;color:rgba(202,164,108,.46);font-size:130px;line-height:1;transform:rotate(-12deg); }
+.cv-burgundy-photo { position:relative;z-index:1;height:230px;display:grid;place-items:center;border:3px solid #d6b776;border-radius:10px;overflow:hidden;background:#e8ded0;color:#65222a;font:700 42px/1 Georgia,serif;box-shadow:0 10px 30px rgba(0,0,0,.25); }
+.cv-burgundy-photo img { width:100%;height:100%;object-fit:cover;object-position:center top; }
+.cv-burgundy-document.no-photo .cv-burgundy-hero { grid-template-columns:minmax(0,1fr) 135px; }
+.cv-burgundy-document.no-photo .cv-burgundy-photo { display:none; }
+.cv-burgundy-identity { min-width:0;padding-top:10px; }
+.cv-burgundy-identity>p { margin:0;color:#e2c087;font:700 11px/1 Inter,sans-serif;letter-spacing:.31em; }
+.cv-burgundy-identity>small { display:block;margin-top:8px;padding-bottom:12px;border-bottom:1px solid #d4ab6e;color:#f0dfc0;font:650 10px/1 Inter,sans-serif;letter-spacing:.24em; }
+.cv-burgundy-identity h1 { margin:21px 0 8px;color:#fffaf1;font:700 clamp(35px,4.7vw,52px)/1 Georgia,serif;letter-spacing:-.02em;overflow-wrap:break-word; }
+.cv-burgundy-identity h2 { margin:0;color:#fff2dd;font:500 15px/1.35 Inter,sans-serif;letter-spacing:.05em; }
+.cv-burgundy-identity blockquote { margin:25px 0 0;color:#ead8bc;font:italic 18px/1.45 Georgia,serif; }
+.cv-burgundy-hero>aside { position:relative;z-index:1;padding-top:2px;color:#ead1aa;text-align:center; }
+.cv-burgundy-hero>aside b { font:650 8px/1.7 Inter,sans-serif;letter-spacing:.28em; }
+.cv-burgundy-hero>aside span { display:block;margin-top:18px;font-size:68px; }
+.cv-burgundy-contact-row { display:grid;grid-template-columns:1fr 1.1fr;gap:22px;padding:14px 26px;border-bottom:1px solid #9a6d60;background:rgba(255,252,247,.98); }
+.cv-burgundy-contact-row>div { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 17px;padding-right:18px;border-right:1px solid #b99384;font:11px/1.3 Inter,sans-serif; }
+.cv-burgundy-contact-row span { min-width:0;display:flex;align-items:center;gap:8px; }
+.cv-burgundy-contact-row span i { width:25px;height:25px;display:grid;place-items:center;flex:none;border-radius:50%;background:var(--wine);color:#fff;font-style:normal; }
+.cv-burgundy-contact-row a { color:inherit;text-decoration:none;overflow-wrap:anywhere; }
+.cv-burgundy-contact-row nav { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px; }
+.cv-burgundy-contact-row nav a { min-height:31px;display:flex;align-items:center;justify-content:center;gap:7px;padding:6px 8px;border:1px solid #a77b74;border-radius:5px;color:#542027;font:650 9px/1 Inter,sans-serif;text-align:center;text-decoration:none; }
+.cv-burgundy-contact-row nav a:first-child,.cv-burgundy-contact-row nav a:nth-child(2) { background:var(--wine);color:#fff7eb; }
+.cv-burgundy-contact-row nav i { font-style:normal; }
+.cv-burgundy-body { display:grid;grid-template-columns:1fr 1fr;gap:0;padding:10px 25px 0; }
+.cv-burgundy-column { min-width:0;padding-right:20px; }
+.cv-burgundy-right { padding:0 0 0 22px;border-left:1px solid #cdb9ad; }
+.cv-burgundy-document .cv-doc-section { padding:9px 0; }
+.cv-burgundy-document .cv-section-heading { display:flex;align-items:center;gap:10px;margin-bottom:8px;border:0; }
+.cv-burgundy-document .cv-section-heading::after { content:"";height:1px;flex:1;background:linear-gradient(90deg,#7a3137,#ba9890); }
+.cv-burgundy-document .cv-section-heading>span { width:31px;height:31px;display:grid;place-items:center;flex:none;border-radius:50%;background:var(--wine);color:#fff;font:700 8px/1 Inter,sans-serif; }
+.cv-burgundy-document .cv-section-heading h3 { margin:0;padding:0;color:#5e2026;font:700 17px/1.12 Georgia,serif;letter-spacing:.08em;text-transform:uppercase; }
+.cv-burgundy-document .cv-section-items { display:grid;gap:7px; }
+.cv-burgundy-document .cv-item-card { position:relative;padding:0 0 7px 45px;border:0;break-inside:avoid; }
+.cv-burgundy-document .cv-item-card::before { content:"";position:absolute;left:14px;top:4px;width:8px;height:8px;border:2px solid #fff7eb;border-radius:50%;background:var(--wine);box-shadow:0 0 0 1px #8b4b4d; }
+.cv-burgundy-document .cv-item-card::after { content:"";position:absolute;left:18px;top:14px;bottom:-6px;width:1px;background:#bba69a; }
+.cv-burgundy-document .cv-item-card:last-child::after { display:none; }
+.cv-burgundy-document .cv-item-card h4 { margin:0 0 3px;color:#302624;font:700 12px/1.25 Georgia,serif; }
+.cv-burgundy-document .cv-item-meta { display:flex;flex-wrap:wrap;gap:2px 8px;color:#5f5650;font:9px/1.35 Inter,sans-serif; }
+.cv-burgundy-document .cv-item-meta small { color:#8b3a3d;font-size:7px; }
+.cv-burgundy-document .cv-description { margin:3px 0 0;color:#443b36;font-size:10px;line-height:1.38; }
+.cv-burgundy-document .cv-item-links { margin-top:4px; }
+.cv-burgundy-document .cv-link-chip { padding:4px 7px;border:1px solid #a98279;border-radius:4px;background:#fff;color:#64242b;font-size:8px; }
+.cv-burgundy-document .section-summary .cv-item-card { padding:0;border:0; }
+.cv-burgundy-document .section-summary .cv-item-card::before,.cv-burgundy-document .section-summary .cv-item-card::after { display:none; }
+.cv-burgundy-document .section-summary .cv-description { margin:0;font:12px/1.45 Georgia,serif; }
+.cv-burgundy-document .section-skills .cv-section-items { grid-template-columns:repeat(2,minmax(0,1fr));gap:8px; }
+.cv-burgundy-document .section-skills .cv-item-card { min-height:55px;display:flex;align-items:center;padding:11px 10px 11px 40px;border-radius:9px;background:#f0ece7; }
+.cv-burgundy-document .section-skills .cv-item-card::before { left:14px;top:18px;width:14px;height:14px;border:0;border-radius:3px;box-shadow:none; }
+.cv-burgundy-document .section-skills .cv-item-card::after,.cv-burgundy-document .section-skills .cv-item-meta { display:none; }
+.cv-burgundy-bottom { display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:0 25px;padding-top:4px;border-top:1px solid #9e756b; }
+.cv-burgundy-bottom .cv-doc-section+section { padding-left:22px;border-left:1px solid #cdb9ad; }
+.cv-burgundy-bottom .cv-section-items { display:flex;flex-wrap:wrap;gap:7px; }
+.cv-burgundy-bottom .cv-item-card { flex:1 1 130px;padding:7px 12px;border-radius:999px;background:#ece7e1; }
+.cv-burgundy-bottom .cv-item-card::before,.cv-burgundy-bottom .cv-item-card::after { display:none; }
+.cv-burgundy-bottom .cv-item-card h4 { margin:0;text-align:center;font-size:10px; }
+.cv-burgundy-bottom .cv-item-meta { justify-content:center; }
+.cv-burgundy-footer { min-height:68px;display:flex;align-items:center;justify-content:center;gap:26px;margin-top:auto;padding:15px 35px;background:linear-gradient(100deg,#431216,#681f26,#431216);color:#e7c89a; }
+.cv-burgundy-footer i { height:1px;flex:1;background:#cea96e; }
+.cv-burgundy-footer em { font:italic 16px/1.25 Georgia,serif;text-align:center; }
+
+@media(max-width:760px) {
+    .cv-paper.cv-08.cv-burgundy-document { width:calc(100% - 18px);min-height:auto; }
+    .cv-burgundy-hero { min-height:auto;grid-template-columns:90px minmax(0,1fr);gap:15px;padding:18px 15px; }
+    .cv-burgundy-photo { height:115px; }
+    .cv-burgundy-identity { padding-top:0; }
+    .cv-burgundy-identity>p { font-size:7px; }
+    .cv-burgundy-identity>small { font-size:6px;letter-spacing:.14em; }
+    .cv-burgundy-identity h1 { margin-top:12px;font-size:25px; }
+    .cv-burgundy-identity h2 { font-size:9px; }
+    .cv-burgundy-identity blockquote,.cv-burgundy-hero>aside { display:none; }
+    .cv-burgundy-contact-row,.cv-burgundy-body,.cv-burgundy-bottom { grid-template-columns:1fr; }
+    .cv-burgundy-contact-row { padding:14px 16px; }
+    .cv-burgundy-contact-row>div { padding:0 0 12px;border:0;border-bottom:1px solid #b99384; }
+    .cv-burgundy-body { padding:8px 17px 0; }
+    .cv-burgundy-column,.cv-burgundy-right { padding:0;border:0; }
+    .cv-burgundy-bottom { gap:0;margin:0 17px; }
+    .cv-burgundy-bottom .cv-doc-section+section { padding-left:0;border-left:0; }
+    .cv-burgundy-document .section-skills .cv-section-items { grid-template-columns:1fr; }
+    .cv-burgundy-footer { gap:10px;padding:16px; }
+    .cv-burgundy-footer em { font-size:12px; }
+}
+
+@media print {
+    .cv-paper.cv-08.cv-burgundy-document { width:210mm!important;min-height:297mm!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important; }
+    .cv-burgundy-hero { min-height:60mm;grid-template-columns:51mm minmax(0,1fr) 28mm;gap:6mm;padding:4mm 6mm; }
+    .cv-burgundy-photo { height:52mm; }
+    .cv-burgundy-identity h1 { font-size:25pt; }
+    .cv-burgundy-contact-row { gap:4mm;padding:3mm 6mm; }
+    .cv-burgundy-body { padding:2mm 6mm 0; }
+    .cv-burgundy-document .cv-doc-section { padding:2mm 0; }
+    .cv-burgundy-document .cv-section-heading h3 { font-size:10pt; }
+    .cv-burgundy-document .cv-item-card { padding:0 0 1.5mm 10mm; }
+    .cv-burgundy-document .cv-item-card h4 { font-size:7.2pt; }
+    .cv-burgundy-document .cv-description { font-size:6pt; }
+    .cv-burgundy-bottom { margin:0 6mm; }
+    .cv-burgundy-footer { min-height:14mm;padding:3mm 8mm; }
+}
 
 /* Bulk alumni registration approval */
 .bulk-approval-bar { display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 14px;padding:13px 15px;border:1px solid #bcd5c9;border-radius:13px;background:linear-gradient(110deg,#f4faf7,#e7f2ec);box-shadow:var(--shadow-sm); }

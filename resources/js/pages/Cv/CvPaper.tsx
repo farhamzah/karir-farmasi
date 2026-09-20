@@ -123,6 +123,38 @@ export default function CvPaper({ cv, photoUrl = '/profile/photo' }: { cv: CvPap
         <div className="cv-section-heading"><span>{String(sectionIndex + 1).padStart(2, '0')}</span><h3>{shortSectionTitle(section.title)}</h3></div>
         <div className="cv-section-items">{section.items.map((item, index) => itemCard(section.key, item, index))}</div>
     </section>;
+    if (cv.template.key === 'cv-08') {
+        const leftKeys = new Set(['summary', 'education', 'experience']);
+        const rightKeys = new Set(['skills', 'certifications', 'event_certificates', 'events', 'organizations', 'projects', 'publications']);
+        const bottomKeys = new Set(['languages', 'preferences']);
+        const leftSections = cv.sections.filter(section => leftKeys.has(section.key));
+        const rightSections = cv.sections.filter(section => rightKeys.has(section.key));
+        const bottomSections = cv.sections.filter(section => bottomKeys.has(section.key));
+        const additionalLinks = [
+            ...((sectionsByKey.get('projects')?.items ?? []).filter(item => typeof item.project_url === 'string')
+                .map(item => ({ href: String(item.project_url), label: 'Lihat Portofolio', icon: '▰' }))),
+            ...((sectionsByKey.get('publications')?.items ?? []).filter(item => typeof item.url === 'string')
+                .map(item => ({ href: String(item.url), label: String(item.url).toLowerCase().includes('scholar.google') ? 'Google Scholar' : 'Lihat Publikasi', icon: '▤' }))),
+        ];
+        const documentLinks = [...onlineLinks, ...additionalLinks]
+            .filter((link, index, links) => links.findIndex(candidate => candidate.href === link.href) === index)
+            .slice(0, 8);
+
+        return <section className={`${classes} cv-burgundy-document${showPhoto ? '' : ' no-photo'}`} data-template-key={cv.template.key}>
+            <header className="cv-burgundy-hero">
+                {showPhoto && <div className="cv-burgundy-photo">{cv.has_photo ? <img src={photoUrl} alt="Foto profil" /> : <span>{initials}</span>}</div>}
+                <div className="cv-burgundy-identity"><p>ALUMNI FARMASI</p><small>ILMU · INTEGRITAS · DAMPAK NYATA</small><h1>{cv.professional_name}</h1>{cv.headline && <h2>{cv.headline}</h2>}<blockquote>“Farmasi untuk kehidupan yang lebih baik.”</blockquote></div>
+                <aside aria-hidden="true"><b>OBAT<br />PASIEN<br />MASA DEPAN</b><span>❧</span></aside>
+            </header>
+            <div className="cv-burgundy-contact-row">
+                <div>{contacts.filter(contact => ['email', 'whatsapp', 'city'].includes(contact.key)).map(contact => <span key={contact.key}><i>{contact.key === 'email' ? '✉' : contact.key === 'whatsapp' ? '●' : '⌖'}</i>{contact.href ? <a href={contact.href}>{contact.label}</a> : contact.label}</span>)}</div>
+                {documentLinks.length > 0 && <nav>{documentLinks.map(link => <a href={link.href} key={`${link.label}-${link.href}`} target="_blank" rel="noreferrer"><i>{link.icon}</i>{link.label}</a>)}</nav>}
+            </div>
+            <div className="cv-burgundy-body"><div className="cv-burgundy-column cv-burgundy-left">{leftSections.map((section, index) => renderSection(section, index))}</div><div className="cv-burgundy-column cv-burgundy-right">{rightSections.map((section, index) => renderSection(section, index))}</div></div>
+            {bottomSections.length > 0 && <div className="cv-burgundy-bottom">{bottomSections.map((section, index) => renderSection(section, index))}</div>}
+            <footer className="cv-burgundy-footer"><i /><em>“Kesehatan hari ini, harapan untuk esok yang lebih baik.”</em><i /></footer>
+        </section>;
+    }
     if (cv.template.key === 'cv-07') {
         const mainKeys = new Set(['summary', 'education', 'experience', 'certifications', 'event_certificates', 'events', 'organizations', 'projects', 'publications']);
         const sideKeys = new Set(['skills', 'languages', 'preferences']);

@@ -151,4 +151,37 @@ class CvVisibilityAndLinkRenderingTest extends TestCase
             $this->assertStringNotContainsString($rawUrl, $visibleText);
         }
     }
+
+    public function test_burgundy_legacy_pdf_uses_maroon_hero_and_safe_link_labels(): void
+    {
+        $profile = $this->profile();
+        $profile->update([
+            'linkedin_url' => 'https://linkedin.example/burgundy',
+            'portfolio_url' => 'https://portfolio.example/burgundy',
+        ]);
+        $profile->certifications()->create([
+            'title' => 'Pelatihan CPOB',
+            'issuer' => 'Lembaga Sintetis',
+            'credential_url' => 'https://certificate.example/burgundy',
+            'sort_order' => 0,
+        ]);
+        $payload = $this->cvPayload($profile, 'cv-08');
+        $payload['field_visibility'] = array_fill_keys(['photo', 'city', 'email', 'whatsapp', 'linkedin_url', 'portfolio_url'], true);
+
+        $this->withSession(['core_principal' => $this->principal()])->post(route('cv.store'), $payload)->assertRedirect();
+
+        $snapshot = app(CareerCvProjection::class)->preview(CareerCv::sole());
+        $html = view('cv.document', ['cv' => $snapshot, 'photoDataUri' => null])->render();
+        $visibleText = html_entity_decode(strip_tags($html));
+
+        $this->assertStringContainsString('class="paper cv-08"', $html);
+        $this->assertStringContainsString('class="burgundy-hero"', $html);
+        $this->assertStringContainsString('class="burgundy-body"', $html);
+        foreach (['LinkedIn', 'Lihat Portofolio', 'Lihat Sertifikat CPOB'] as $label) {
+            $this->assertStringContainsString($label, $visibleText);
+        }
+        foreach (['https://linkedin.example', 'https://portfolio.example', 'https://certificate.example'] as $rawUrl) {
+            $this->assertStringNotContainsString($rawUrl, $visibleText);
+        }
+    }
 }
