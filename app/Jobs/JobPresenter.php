@@ -16,6 +16,7 @@ final class JobPresenter
             'work_mode' => str($job->work_mode)->title()->toString(),
             'city' => $job->city,
             'expires_at' => $job->expires_at?->toDateString(),
+            'published_at' => ($job->published_at ?? $job->created_at)->locale('id')->translatedFormat('d M Y'),
             'source' => [
                 'type' => $job->source_type,
                 'name' => $job->source_name,

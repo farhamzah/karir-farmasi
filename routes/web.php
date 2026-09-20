@@ -68,6 +68,7 @@ Route::get('/', function () {
             'work_mode' => $job->work_mode,
             'employment_type' => $job->employment_type,
             'expires_at' => $job->expires_at?->toDateString(),
+            'published_at' => ($job->published_at ?? $job->created_at)->locale('id')->translatedFormat('d M Y'),
             'tags' => $job->tags->pluck('label')->values()->all(),
         ])->all(),
         'events' => (clone $events)->limit(3)->get()->map(fn (CareerEvent $event): array => [
@@ -179,8 +180,9 @@ Route::prefix('tracer')->name('tracer.')->middleware(['core.principal', 'career.
     Route::put('/{reference}', [TracerController::class, 'save'])->name('save');
 });
 
+Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
+
 Route::prefix('jobs')->name('jobs.')->middleware('core.principal')->group(function () {
-    Route::get('/', [JobController::class, 'index'])->middleware('career.can:'.CareerCapability::JobBrowse->value)->name('index');
     Route::get('/applications', [JobApplicationController::class, 'index'])->middleware('career.can:'.CareerCapability::JobApplyOwn->value)->name('applications.index');
     Route::post('/applications/{reference}/documents', [ApplicationDocumentController::class, 'store'])->middleware('career.can:'.CareerCapability::JobApplyOwn->value)->name('applications.documents.store');
     Route::get('/applications/{reference}/documents/{document}', [ApplicationDocumentController::class, 'candidateDownload'])->middleware('career.can:'.CareerCapability::JobApplyOwn->value)->name('applications.documents.show');
@@ -193,17 +195,18 @@ Route::prefix('jobs')->name('jobs.')->middleware('core.principal')->group(functi
     Route::post('/{reference}/bookmark', [JobController::class, 'bookmark'])->middleware('career.can:'.CareerCapability::JobApplyOwn->value)->name('bookmark');
     Route::delete('/{reference}/bookmark', [JobController::class, 'unbookmark'])->middleware('career.can:'.CareerCapability::JobApplyOwn->value)->name('unbookmark');
     Route::post('/{reference}/report', [JobController::class, 'report'])->middleware(['career.can:'.CareerCapability::JobApplyOwn->value, 'throttle:8,1'])->name('report');
-    Route::get('/{reference}', [JobController::class, 'show'])->middleware('career.can:'.CareerCapability::JobBrowse->value)->name('show');
 });
+Route::get('/jobs/{reference}', [JobController::class, 'show'])->name('jobs.show');
+
+Route::get('/events', [EventController::class, 'index'])->name('events.index');
 
 Route::prefix('events')->name('events.')->middleware('core.principal')->group(function () {
-    Route::get('/', [EventController::class, 'index'])->middleware('career.can:'.CareerCapability::EventViewPublished->value)->name('index');
     Route::get('/mine', [EventController::class, 'mine'])->middleware('career.can:'.CareerCapability::EventHistoryOwn->value)->name('mine');
     Route::get('/certificates/{certificate}', [EventCertificateController::class, 'show'])->middleware('career.can:'.CareerCapability::CertificateViewOwn->value)->name('certificate');
-    Route::get('/{event:slug}', [EventController::class, 'show'])->middleware('career.can:'.CareerCapability::EventViewPublished->value)->name('show');
     Route::post('/{event:slug}/registrations', [EventRegistrationController::class, 'store'])->middleware('career.can:'.CareerCapability::EventRegisterOwn->value)->name('register');
     Route::delete('/{event:slug}/registrations/{registration}', [EventRegistrationController::class, 'destroy'])->middleware('career.can:'.CareerCapability::EventRegisterOwn->value)->name('cancel');
 });
+Route::get('/events/{event:slug}', [EventController::class, 'show'])->name('events.show');
 
 Route::prefix('cv')->name('cv.')->middleware('core.principal')->group(function () {
     Route::get('/', [CareerCvController::class, 'index'])->middleware('career.can:'.CareerCapability::CvViewOwn->value)->name('index');

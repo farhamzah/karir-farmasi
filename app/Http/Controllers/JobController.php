@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Authorization\CareerCapability;
+use App\Authorization\CurrentCareerActor;
 use App\Data\CareerActor;
 use App\Jobs\JobPresenter;
 use App\Jobs\JobWorkflow;
@@ -14,7 +16,7 @@ use Inertia\Response;
 
 class JobController extends Controller
 {
-    public function index(Request $request, JobWorkflow $workflow, JobPresenter $presenter, CareerProfileStore $profiles): Response
+    public function index(Request $request, JobWorkflow $workflow, JobPresenter $presenter, CareerProfileStore $profiles, CurrentCareerActor $currentActor): Response
     {
         $workflow->expireDueJobs();
         $filters = $request->validate([
@@ -35,27 +37,35 @@ class JobController extends Controller
         $query->when($filters['employer'] ?? null, fn ($q, $value) => $q->where('employer_display_name', 'like', "%{$value}%"));
         $query->when($filters['tag'] ?? null, fn ($q, $tag) => $q->whereHas('tags', fn ($tags) => $tags->where('normalized_label', 'like', '%'.str($tag)->lower()->ascii()->squish().'%')));
 
-        /** @var CareerActor $actor */
-        $actor = $request->attributes->get(CareerActor::class);
-        $profile = $profiles->find($actor);
+        $actor = $currentActor->optionalFromRequest($request);
+        $canInteract = $actor && in_array(CareerCapability::JobApplyOwn, $actor->capabilities, true);
+        $profile = $canInteract ? $profiles->find($actor) : null;
         $bookmarks = $profile ? $profile->jobBookmarks()->pluck('career_job_id')->all() : [];
 
         return Inertia::render('Jobs/Index', [
             'filters' => $filters,
             'jobs' => $query->latest('published_at')->get()->map(fn ($job) => $presenter->card($job) + ['bookmarked' => in_array($job->id, $bookmarks, true)])->all(),
+            'canInteract' => $canInteract,
         ]);
     }
 
-    public function show(Request $request, string $reference, JobPresenter $presenter, CareerProfileStore $profiles): Response
+    public function show(Request $request, string $reference, JobPresenter $presenter, CareerProfileStore $profiles, CurrentCareerActor $currentActor): Response
     {
         $job = CareerJob::query()->visibleToCandidates()->with('tags')->where('public_reference', $reference)->firstOrFail();
-        /** @var CareerActor $actor */ $actor = $request->attributes->get(CareerActor::class);
-        $profile = $profiles->find($actor);
+        $actor = $currentActor->optionalFromRequest($request);
+        $canInteract = $actor && in_array(CareerCapability::JobApplyOwn, $actor->capabilities, true);
+        $profile = $canInteract ? $profiles->find($actor) : null;
+        $detail = $presenter->detail($job);
+        if (! $canInteract) {
+            $detail['external_apply_url'] = null;
+            $detail['external_apply_email'] = null;
+        }
 
         return Inertia::render('Jobs/Show', [
-            'job' => $presenter->detail($job),
+            'job' => $detail,
             'cvs' => $profile?->cvs()->with('templateVersion.template')->get()->map(fn ($cv) => ['id' => $cv->id, 'name' => $cv->name, 'template' => $cv->templateVersion?->template?->name])->all() ?? [],
             'application' => $profile ? $job->applications()->where('career_profile_id', $profile->id)->first(['public_reference', 'status', 'method']) : null,
+            'canInteract' => $canInteract,
         ]);
     }
 

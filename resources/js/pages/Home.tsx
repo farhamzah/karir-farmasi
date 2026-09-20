@@ -2,7 +2,7 @@ import { FormEvent, useState } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import Brand from '../components/Brand';
 
-type Job = { reference: string; title: string; employer: string; city: string | null; work_mode: string; employment_type: string; expires_at: string | null; tags: string[] };
+type Job = { reference: string; title: string; employer: string; city: string | null; work_mode: string; employment_type: string; expires_at: string | null; published_at: string; tags: string[] };
 type Event = { slug: string; title: string; organizer: string; event_type: string; starts_at: string; location: string | null; topics: string[]; flyer_url: string | null; flyer_alt_text: string };
 type Actor = { display_name: string; roles: string[]; capabilities: string[] };
 type HomeProps = { identityStatus: 'unavailable' | 'connected'; environmentLabel: string | null; jobs: Job[]; events: Event[]; opportunityCounts: { jobs: number; events: number } };
@@ -33,19 +33,19 @@ function HomeHeader({ actor }: { actor?: Actor }) {
     </header>;
 }
 
-function JobCard({ job, signedIn }: { job: Job; signedIn: boolean }) {
-    return <article className="home-v2-job-card"><div className="home-v2-company-mark">{job.employer.slice(0, 2).toUpperCase()}</div><div className="home-v2-card-body"><div className="home-v2-card-top"><span>{job.employer}</span><b>{readable(job.employment_type)}</b></div><h3>{job.title}</h3><p>⌖ {job.city || 'Lokasi diinformasikan'} · {readable(job.work_mode)}</p><div className="home-v2-tags">{job.tags.slice(0, 3).map(tag => <span key={tag}>{tag}</span>)}</div></div><Link aria-label={`Lihat ${job.title}`} href={signedIn ? `/jobs/${job.reference}` : '/login'}>→</Link></article>;
+function JobCard({ job }: { job: Job }) {
+    return <article className="home-v2-job-card"><div className="home-v2-company-mark">{job.employer.slice(0, 2).toUpperCase()}</div><div className="home-v2-card-body"><div className="home-v2-card-top"><span>{job.employer}</span><b>{readable(job.employment_type)}</b></div><h3>{job.title}</h3><p>⌖ {job.city || 'Lokasi diinformasikan'} · {readable(job.work_mode)}</p><small>Dipublikasikan {job.published_at}</small><div className="home-v2-tags">{job.tags.slice(0, 3).map(tag => <span key={tag}>{tag}</span>)}</div></div><Link aria-label={`Lihat ${job.title}`} href={`/jobs/${job.reference}`}>→</Link></article>;
 }
 
-function EventCard({ event, signedIn }: { event: Event; signedIn: boolean }) {
-    return <article className="home-v2-event-card">{event.flyer_url ? <img src={event.flyer_url} alt={event.flyer_alt_text} /> : <div className="home-v2-date"><b>{event.starts_at.split(' ')[0]}</b><span>{event.starts_at.split(' ').slice(1).join(' ')}</span></div>}<div className="home-v2-card-body"><div className="home-v2-card-top"><span>{readable(event.event_type)}</span><b>{event.organizer}</b></div><h3>{event.title}</h3><p>⌖ {event.location || 'Detail lokasi tersedia di halaman event'}</p><div className="home-v2-tags">{event.topics.slice(0, 3).map(topic => <span key={topic}>{topic}</span>)}</div></div><Link aria-label={`Lihat ${event.title}`} href={signedIn ? `/events/${event.slug}` : '/login'}>→</Link></article>;
+function EventCard({ event }: { event: Event }) {
+    return <article className="home-v2-event-card">{event.flyer_url ? <img src={event.flyer_url} alt={event.flyer_alt_text} /> : <div className="home-v2-date"><b>{event.starts_at.split(' ')[0]}</b><span>{event.starts_at.split(' ').slice(1).join(' ')}</span></div>}<div className="home-v2-card-body"><div className="home-v2-card-top"><span>{readable(event.event_type)}</span><b>{event.organizer}</b></div><h3>{event.title}</h3><p>⌖ {event.location || 'Detail lokasi tersedia di halaman event'}</p><div className="home-v2-tags">{event.topics.slice(0, 3).map(topic => <span key={topic}>{topic}</span>)}</div></div><Link aria-label={`Lihat ${event.title}`} href={`/events/${event.slug}`}>→</Link></article>;
 }
 
 export default function Home({ identityStatus, environmentLabel, jobs, events, opportunityCounts }: HomeProps) {
     const actor = usePage<SharedProps>().props.auth?.actor;
     const isCandidate = actor?.roles.includes('kandidat-karir') ?? false;
     const [query, setQuery] = useState('');
-    const submitSearch = (event: FormEvent) => { event.preventDefault(); if (isCandidate) router.get('/jobs', query.trim() ? { q: query.trim() } : {}); else router.visit('/login'); };
+    const submitSearch = (event: FormEvent) => { event.preventDefault(); router.get('/jobs', query.trim() ? { q: query.trim() } : {}); };
 
     return <><Head title="SAFA KARIR — Alumni Farmasi UBP" /><main className="home-v2" id="top">
         <HomeHeader actor={actor} />
@@ -60,8 +60,8 @@ export default function Home({ identityStatus, environmentLabel, jobs, events, o
         <section className="home-v2-feature-strip" id="fitur" aria-label="Fitur SAFA KARIR">{featureCards.map(([icon, title, text]) => <article key={title}><span>{icon}</span><div><h2>{title}</h2><p>{text}</p></div></article>)}</section>
 
         <section className="home-v2-opportunities" aria-labelledby="opportunity-title"><div className="home-v2-section-head"><div><p className="home-v2-eyebrow">PELUANG TERBARU</p><h2 id="opportunity-title">Kesempatan yang dekat,<br />langkah yang lebih mantap.</h2></div><p>Informasi dari ekosistem kampus dan mitra terverifikasi, disajikan ringkas agar mudah dipilih.</p></div><div className="home-v2-feed-grid">
-            <section id="lowongan"><div className="home-v2-feed-title"><div><span>Lowongan aktif</span><b>{opportunityCounts.jobs}</b></div><Link href={isCandidate ? '/jobs' : '/login'}>Lihat semua →</Link></div><div className="home-v2-feed-list">{jobs.length ? jobs.map(job => <JobCard key={job.reference} job={job} signedIn={isCandidate} />) : <div className="home-v2-empty"><b>Lowongan sedang dikurasi.</b><p>Silakan kembali lagi untuk melihat peluang terbaru.</p></div>}</div></section>
-            <section id="event"><div className="home-v2-feed-title"><div><span>Event & seminar</span><b>{opportunityCounts.events}</b></div><Link href={isCandidate ? '/events' : '/login'}>Lihat semua →</Link></div><div className="home-v2-feed-list">{events.length ? events.map(item => <EventCard key={item.slug} event={item} signedIn={isCandidate} />) : <div className="home-v2-empty"><b>Agenda berikutnya sedang disiapkan.</b><p>Event yang telah dipublikasikan akan tampil di sini.</p></div>}</div></section>
+            <section id="lowongan"><div className="home-v2-feed-title"><div><span>Lowongan aktif</span><b>{opportunityCounts.jobs}</b></div><Link href="/jobs">Lihat semua →</Link></div><div className="home-v2-feed-list">{jobs.length ? jobs.map(job => <JobCard key={job.reference} job={job} />) : <div className="home-v2-empty"><b>Lowongan sedang dikurasi.</b><p>Silakan kembali lagi untuk melihat peluang terbaru.</p></div>}</div></section>
+            <section id="event"><div className="home-v2-feed-title"><div><span>Event & seminar</span><b>{opportunityCounts.events}</b></div><Link href="/events">Lihat semua →</Link></div><div className="home-v2-feed-list">{events.length ? events.map(item => <EventCard key={item.slug} event={item} />) : <div className="home-v2-empty"><b>Agenda berikutnya sedang disiapkan.</b><p>Event yang telah dipublikasikan akan tampil di sini.</p></div>}</div></section>
         </div></section>
 
         <section className="home-v2-story" id="alumni"><div><p className="home-v2-eyebrow">PERJALANAN ALUMNI</p><h2>Satu profil untuk setiap langkah karier.</h2><p>Mulai dari rekam jejak akademik, CV untuk peluang tertentu, hingga event dan sertifikat yang memperkuat portofolio Anda.</p><Link className="home-v2-primary" href={actor ? (isCandidate ? '/profile' : '/staff') : '/register'}>{actor ? 'Lanjutkan perjalanan' : 'Mulai sekarang'} <span>→</span></Link></div><ol><li><span>01</span><div><b>Bangun profil</b><p>Isi sekali, gunakan kembali untuk banyak CV.</p></div></li><li><span>02</span><div><b>Pilih kesempatan</b><p>Temukan lowongan dan event yang relevan.</p></div></li><li><span>03</span><div><b>Tampilkan kemampuan</b><p>Bagikan hanya informasi yang Anda izinkan.</p></div></li></ol></section>

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Authorization\CareerCapability;
+use App\Authorization\CurrentCareerActor;
 use App\Data\CareerActor;
 use App\Models\CareerEvent;
 use App\Models\CareerProfile;
@@ -11,30 +13,37 @@ use Inertia\Response;
 
 class EventController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, CurrentCareerActor $currentActor): Response
     {
-        $profile = $this->profile($request);
+        $actor = $currentActor->optionalFromRequest($request);
+        $profile = $this->profile($actor);
         $events = CareerEvent::query()->where('status', 'published')->where('ends_at', '>=', now())->with('topics')->withCount(['registrations as registrations_count' => fn ($query) => $query->whereNull('cancelled_at')])
-            ->orderBy('starts_at')->get()->map(fn ($event) => $this->data($event, $profile))->all();
+            ->orderBy('starts_at')->get()->map(fn ($event) => $this->data($event, $profile, $actor))->all();
 
-        return Inertia::render('Event/Index', ['events' => $events]);
+        return Inertia::render('Event/Index', ['events' => $events, 'canRegister' => $this->canRegister($actor)]);
     }
 
-    public function show(Request $request, CareerEvent $event): Response
+    public function show(Request $request, CareerEvent $event, CurrentCareerActor $currentActor): Response
     {
         abort_unless($event->status === 'published', 404);
         $event->load('topics')->loadCount(['registrations as registrations_count' => fn ($query) => $query->whereNull('cancelled_at')]);
 
-        return Inertia::render('Event/Show', ['event' => $this->data($event, $this->profile($request))]);
+        $actor = $currentActor->optionalFromRequest($request);
+
+        return Inertia::render('Event/Show', [
+            'event' => $this->data($event, $this->profile($actor), $actor),
+            'canRegister' => $this->canRegister($actor),
+        ]);
     }
 
     public function mine(Request $request): Response
     {
-        $profile = $this->profile($request);
+        /** @var CareerActor $actor */ $actor = $request->attributes->get(CareerActor::class);
+        $profile = $this->profile($actor);
         $registrations = $profile?->eventRegistrations()->with(['event.topics', 'certificate'])->latest('registered_at')->get()->map(fn ($registration) => [
             'id' => $registration->id, 'status' => $registration->status, 'role' => $this->role($registration->role),
             'attended' => $registration->attended_at !== null, 'completed' => $registration->completed_at !== null,
-            'event' => $this->data($registration->event, $profile),
+            'event' => $this->data($registration->event, $profile, $actor),
             'certificate' => $registration->certificate && ! $registration->certificate->revoked_at ? [
                 'number' => $registration->certificate->certificate_number, 'issued_at' => $registration->certificate->issued_at->locale('id')->translatedFormat('d M Y'),
                 'download_url' => route('events.certificate', $registration->certificate),
@@ -44,14 +53,12 @@ class EventController extends Controller
         return Inertia::render('Event/MyEvents', ['registrations' => $registrations]);
     }
 
-    private function profile(Request $request): ?CareerProfile
+    private function profile(?CareerActor $actor): ?CareerProfile
     {
-        /** @var CareerActor $actor */ $actor = $request->attributes->get(CareerActor::class);
-
-        return CareerProfile::where('core_user_id', $actor->coreUserId)->first();
+        return $actor ? CareerProfile::where('core_user_id', $actor->coreUserId)->first() : null;
     }
 
-    private function data(CareerEvent $event, ?CareerProfile $profile): array
+    private function data(CareerEvent $event, ?CareerProfile $profile, ?CareerActor $actor): array
     {
         $registration = $profile ? $event->registrations()->where('career_profile_id', $profile->id)->first() : null;
 
@@ -72,7 +79,15 @@ class EventController extends Controller
             'registration_closes_at' => $event->registration_closes_at?->locale('id')->translatedFormat('d M Y · H.i'),
             'registration_notes' => $event->registration_notes,
             'flyer_url' => $event->flyer_path ? route('event-flyers.show', $event) : null,
-            'flyer_alt_text' => $event->flyer_alt_text ?: 'Flyer '.$event->title];
+            'flyer_alt_text' => $event->flyer_alt_text ?: 'Flyer '.$event->title,
+            'published_at' => $event->created_at->locale('id')->translatedFormat('d M Y'),
+            'can_register' => $this->canRegister($actor),
+        ];
+    }
+
+    private function canRegister(?CareerActor $actor): bool
+    {
+        return $actor && in_array(CareerCapability::EventRegisterOwn, $actor->capabilities, true);
     }
 
     private function role(string $role): string
