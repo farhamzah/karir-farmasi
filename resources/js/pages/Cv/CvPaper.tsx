@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import EditorialPortfolio from './EditorialPortfolio';
+import SignaturePortfolio from './SignaturePortfolio';
 import WebPortfolio from './WebPortfolio';
 
 export type CvItem = Record<string, string | number | boolean | null>;
@@ -95,6 +97,8 @@ function itemCard(sectionKey: string, item: CvItem, index: number): ReactNode {
 
 export default function CvPaper({ cv, photoUrl = '/profile/photo' }: { cv: CvPaperData; photoUrl?: string }) {
     if (cv.template.key === 'cv-09') return <WebPortfolio cv={cv} photoUrl={photoUrl} />;
+    if (cv.template.key === 'cv-10') return <EditorialPortfolio cv={cv} photoUrl={photoUrl} />;
+    if (cv.template.key === 'cv-11') return <SignaturePortfolio cv={cv} photoUrl={photoUrl} />;
     const config = cv.template.configuration;
     const classes = ['cv-paper', cv.template.key, `layout-${config.layout}`, `photo-${config.photo}`, `type-${config.typography}`,
         `spacing-${config.spacing}`, `header-${config.header_style}`, `section-style-${config.section_style}`,

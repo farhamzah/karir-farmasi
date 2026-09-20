@@ -86,6 +86,64 @@ class CvVisibilityAndLinkRenderingTest extends TestCase
         }
     }
 
+    public function test_ivory_editorial_portfolio_uses_safe_links_and_existing_visibility_projection(): void
+    {
+        $profile = $this->profile();
+        $profile->update(['linkedin_url' => 'https://linkedin.example/editorial', 'portfolio_url' => 'https://portfolio.example/editorial']);
+        $profile->certifications()->create([
+            'title' => 'Ijazah Sarjana Farmasi', 'issuer' => 'Universitas Sintetis',
+            'credential_url' => 'https://drive.example/editorial-ijazah', 'sort_order' => 0,
+        ]);
+        $profile->projects()->create([
+            'title' => 'Edukasi Penggunaan Obat', 'description' => 'Portofolio edukasi untuk masyarakat.',
+            'project_url' => 'https://project.example/editorial', 'sort_order' => 0,
+        ]);
+        $payload = $this->cvPayload($profile, 'cv-10');
+        $payload['field_visibility'] = ['photo' => false, 'city' => true, 'email' => true, 'whatsapp' => false, 'linkedin_url' => true, 'portfolio_url' => true];
+
+        $this->withSession(['core_principal' => $this->principal()])->post(route('cv.store'), $payload)->assertRedirect();
+        $snapshot = app(CareerCvProjection::class)->preview(CareerCv::sole());
+        $html = view('cv.document', ['cv' => $snapshot, 'photoDataUri' => null])->render();
+        $visibleText = html_entity_decode(strip_tags($html));
+
+        $this->assertStringContainsString('class="paper cv-10"', $html);
+        $this->assertFalse($snapshot['has_photo']);
+        $this->assertNull($snapshot['whatsapp']);
+        foreach (['LinkedIn', 'Portofolio', 'Lihat Ijazah', 'Lihat Portofolio'] as $label) {
+            $this->assertStringContainsString($label, $visibleText);
+        }
+        foreach (['https://linkedin.example', 'https://portfolio.example', 'https://drive.example', 'https://project.example'] as $rawUrl) {
+            $this->assertStringNotContainsString($rawUrl, $visibleText);
+        }
+    }
+
+    public function test_heritage_web_portfolio_uses_public_revision_projection_without_raw_urls(): void
+    {
+        $profile = $this->profile();
+        $profile->update(['linkedin_url' => 'https://linkedin.example/heritage', 'portfolio_url' => 'https://portfolio.example/heritage']);
+        $profile->certifications()->create([
+            'title' => 'Transkrip Akademik', 'issuer' => 'Universitas Sintetis',
+            'credential_url' => 'https://drive.example/heritage-transcript', 'sort_order' => 0,
+        ]);
+        $payload = $this->cvPayload($profile, 'cv-11');
+        $payload['field_visibility'] = ['photo' => false, 'city' => true, 'email' => true, 'whatsapp' => false, 'linkedin_url' => true, 'portfolio_url' => true];
+
+        $this->withSession(['core_principal' => $this->principal()])->post(route('cv.store'), $payload)->assertRedirect();
+        $snapshot = app(CareerCvProjection::class)->preview(CareerCv::sole());
+        $html = view('cv.document', ['cv' => $snapshot, 'photoDataUri' => null])->render();
+        $visibleText = html_entity_decode(strip_tags($html));
+
+        $this->assertStringContainsString('class="paper cv-11"', $html);
+        $this->assertFalse($snapshot['has_photo']);
+        $this->assertNull($snapshot['whatsapp']);
+        foreach (['LinkedIn', 'Portofolio', 'Lihat Transkrip'] as $label) {
+            $this->assertStringContainsString($label, $visibleText);
+        }
+        foreach (['https://linkedin.example', 'https://portfolio.example', 'https://drive.example'] as $rawUrl) {
+            $this->assertStringNotContainsString($rawUrl, $visibleText);
+        }
+    }
+
     public function test_pharmacy_impact_pdf_uses_the_same_navy_structure_as_its_preview(): void
     {
         $profile = $this->profile();

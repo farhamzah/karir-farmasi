@@ -14,11 +14,11 @@ class CvTemplateVisualContractTest extends TestCase
 {
     use BuildsCvFixtures, RefreshDatabase;
 
-    public function test_nine_templates_have_distinct_safe_visual_identities(): void
+    public function test_eleven_templates_have_distinct_safe_visual_identities(): void
     {
         $templates = app(CvTemplateCatalog::class)->frontend();
-        $this->assertSame(['cv-01', 'cv-02', 'cv-03', 'cv-04', 'cv-05', 'cv-06', 'cv-07', 'cv-08', 'cv-09'], array_column($templates, 'key'));
-        $this->assertCount(9, collect($templates)->pluck('configuration')->map(fn ($config) => json_encode($config))->unique());
+        $this->assertSame(['cv-01', 'cv-02', 'cv-03', 'cv-04', 'cv-05', 'cv-06', 'cv-07', 'cv-08', 'cv-09', 'cv-10', 'cv-11'], array_column($templates, 'key'));
+        $this->assertCount(11, collect($templates)->pluck('configuration')->map(fn ($config) => json_encode($config))->unique());
         foreach ($templates as $template) {
             $this->assertCount(8, $template['configuration']);
         }
@@ -34,7 +34,7 @@ class CvTemplateVisualContractTest extends TestCase
         $this->withSession($session)->post(route('cv.store'), $payload)->assertRedirect();
         $cv = CareerCv::sole();
 
-        foreach (['cv-02', 'cv-03', 'cv-04', 'cv-05', 'cv-06', 'cv-07', 'cv-08', 'cv-09', 'cv-01'] as $key) {
+        foreach (['cv-02', 'cv-03', 'cv-04', 'cv-05', 'cv-06', 'cv-07', 'cv-08', 'cv-09', 'cv-10', 'cv-11', 'cv-01'] as $key) {
             $payload['template_version_id'] = $this->cvPayload($profile, $key)['template_version_id'];
             $this->withSession($session)->put(route('cv.update', $cv), $payload)->assertRedirect();
         }
@@ -59,7 +59,7 @@ class CvTemplateVisualContractTest extends TestCase
             ]);
         }
         $session = ['core_principal' => $this->principal()];
-        foreach (['cv-01', 'cv-02', 'cv-03', 'cv-04', 'cv-05', 'cv-06', 'cv-07', 'cv-08', 'cv-09'] as $key) {
+        foreach (['cv-01', 'cv-02', 'cv-03', 'cv-04', 'cv-05', 'cv-06', 'cv-07', 'cv-08', 'cv-09', 'cv-10', 'cv-11'] as $key) {
             $payload = $this->cvPayload($profile, $key, strtoupper($key));
             $payload['sections'][0]['enabled'] = false;
             $this->withSession($session)->post(route('cv.store'), $payload)->assertRedirect();
