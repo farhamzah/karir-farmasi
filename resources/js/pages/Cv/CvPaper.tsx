@@ -123,6 +123,42 @@ export default function CvPaper({ cv, photoUrl = '/profile/photo' }: { cv: CvPap
         <div className="cv-section-heading"><span>{String(sectionIndex + 1).padStart(2, '0')}</span><h3>{shortSectionTitle(section.title)}</h3></div>
         <div className="cv-section-items">{section.items.map((item, index) => itemCard(section.key, item, index))}</div>
     </section>;
+    if (cv.template.key === 'cv-07') {
+        const mainKeys = new Set(['summary', 'education', 'experience', 'certifications', 'event_certificates', 'events', 'organizations', 'projects', 'publications']);
+        const sideKeys = new Set(['skills', 'languages', 'preferences']);
+        const mainSections = cv.sections.filter(section => mainKeys.has(section.key));
+        const sideSections = cv.sections.filter(section => sideKeys.has(section.key));
+        const additionalLinks = [
+            ...((sectionsByKey.get('projects')?.items ?? []).filter(item => typeof item.project_url === 'string')
+                .map(item => ({ href: String(item.project_url), label: 'Lihat Portofolio', icon: '▰' }))),
+            ...((sectionsByKey.get('publications')?.items ?? []).filter(item => typeof item.url === 'string')
+                .map(item => ({ href: String(item.url), label: String(item.url).toLowerCase().includes('scholar.google') ? 'Google Scholar' : 'Lihat Publikasi', icon: '▤' }))),
+        ];
+        const documentLinks = [...onlineLinks, ...additionalLinks]
+            .filter((link, index, links) => links.findIndex(candidate => candidate.href === link.href) === index)
+            .slice(0, 8);
+
+        return <section className={`${classes} cv-gold-document`} data-template-key={cv.template.key}>
+            <div className="cv-gold-main">
+                <header className="cv-gold-identity">
+                    <div className="cv-gold-brand"><span>PHARMACY ALUMNI</span><i /></div>
+                    <h1>{cv.professional_name}</h1>
+                    {cv.headline && <h2>{cv.headline}</h2>}
+                </header>
+                <div className="cv-gold-main-sections">{mainSections.map((section, index) => renderSection(section, index))}</div>
+                <footer className="cv-gold-main-footer"><em>Profesional. Berintegritas. Berdampak.</em></footer>
+            </div>
+            <aside className="cv-gold-sidebar">
+                <div className="cv-gold-photo">{showPhoto && cv.has_photo ? <img src={photoUrl} alt="Foto profil" /> : <span>{initials}</span>}</div>
+                <strong className="cv-gold-signature">{cv.professional_name.split(' ')[0]}</strong>
+                <p className="cv-gold-motto">KESEHATAN LEBIH BAIK<br />UNTUK SEMUA</p>
+                <div className="cv-gold-contact">{contacts.filter(contact => ['email', 'whatsapp', 'city'].includes(contact.key)).map(contact => <span key={contact.key}><i aria-hidden="true">{contact.key === 'email' ? '✉' : contact.key === 'whatsapp' ? '●' : '⌖'}</i>{contact.href ? <a href={contact.href}>{contact.label}</a> : contact.label}</span>)}</div>
+                <div className="cv-gold-side-sections">{sideSections.map((section, index) => renderSection(section, index))}</div>
+                {documentLinks.length > 0 && <section className="cv-gold-links"><h3>Tautan &amp; Dokumen</h3><div>{documentLinks.map(link => <a href={link.href} key={`${link.label}-${link.href}`} target="_blank" rel="noreferrer"><i>{link.icon}</i>{link.label}</a>)}</div></section>}
+                <footer className="cv-gold-side-footer"><span>FARMASI</span><b>UNTUK KEHIDUPAN<br />YANG LEBIH BAIK</b></footer>
+            </aside>
+        </section>;
+    }
     if (cv.template.key === 'cv-06') {
         const leftKeys = new Set(['education', 'experience', 'publications', 'projects', 'organizations']);
         const rightKeys = new Set(['skills', 'certifications', 'event_certificates', 'events', 'languages', 'preferences']);

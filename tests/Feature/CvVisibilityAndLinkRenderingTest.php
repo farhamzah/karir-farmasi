@@ -118,4 +118,37 @@ class CvVisibilityAndLinkRenderingTest extends TestCase
             $this->assertStringNotContainsString($rawUrl, $visibleText);
         }
     }
+
+    public function test_golden_apothecary_pdf_uses_editorial_sidebar_and_safe_link_labels(): void
+    {
+        $profile = $this->profile();
+        $profile->update([
+            'linkedin_url' => 'https://linkedin.example/golden',
+            'portfolio_url' => 'https://portfolio.example/golden',
+        ]);
+        $profile->certifications()->create([
+            'title' => 'Pelatihan CPOB',
+            'issuer' => 'Lembaga Sintetis',
+            'credential_url' => 'https://certificate.example/golden',
+            'sort_order' => 0,
+        ]);
+        $payload = $this->cvPayload($profile, 'cv-07');
+        $payload['field_visibility'] = array_fill_keys(['photo', 'city', 'email', 'whatsapp', 'linkedin_url', 'portfolio_url'], true);
+
+        $this->withSession(['core_principal' => $this->principal()])->post(route('cv.store'), $payload)->assertRedirect();
+
+        $snapshot = app(CareerCvProjection::class)->preview(CareerCv::sole());
+        $html = view('cv.document', ['cv' => $snapshot, 'photoDataUri' => null])->render();
+        $visibleText = html_entity_decode(strip_tags($html));
+
+        $this->assertStringContainsString('class="paper cv-07"', $html);
+        $this->assertStringContainsString('class="gold-main"', $html);
+        $this->assertStringContainsString('class="gold-side"', $html);
+        foreach (['LinkedIn', 'Lihat Portofolio', 'Lihat Sertifikat CPOB'] as $label) {
+            $this->assertStringContainsString($label, $visibleText);
+        }
+        foreach (['https://linkedin.example', 'https://portfolio.example', 'https://certificate.example'] as $rawUrl) {
+            $this->assertStringNotContainsString($rawUrl, $visibleText);
+        }
+    }
 }

@@ -24,7 +24,7 @@ class CvTemplateController extends Controller
 
         return Inertia::render('Admin/CvTemplates/Index', [
             'templates' => $templates,
-            'baseTemplates' => CvTemplate::query()->whereIn('key', ['cv-01', 'cv-02', 'cv-03', 'cv-04', 'cv-05', 'cv-06'])
+            'baseTemplates' => CvTemplate::query()->whereIn('key', ['cv-01', 'cv-02', 'cv-03', 'cv-04', 'cv-05', 'cv-06', 'cv-07'])
                 ->where('active', true)->orderBy('display_order')->get(['key', 'name']),
         ]);
     }

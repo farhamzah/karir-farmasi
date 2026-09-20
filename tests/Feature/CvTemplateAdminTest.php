@@ -25,10 +25,10 @@ class CvTemplateAdminTest extends TestCase
         }
         $this->withSession(['core_principal' => $this->principal('admin', ['admin-karir'])])
             ->get(route('admin.cv-templates.index'))->assertOk()->assertInertia(fn (Assert $page) => $page
-            ->component('Admin/CvTemplates/Index')->has('templates', 6));
+            ->component('Admin/CvTemplates/Index')->has('templates', 7));
     }
 
-    public function test_admin_creates_sixth_safe_variation_without_code_and_publishes_it(): void
+    public function test_admin_creates_additional_safe_variation_without_code_and_publishes_it(): void
     {
         $session = ['core_principal' => $this->principal('admin', ['admin-karir'])];
         $this->withSession($session)->post(route('admin.cv-templates.store'), [
@@ -48,7 +48,7 @@ class CvTemplateAdminTest extends TestCase
         ])->assertRedirect();
         $this->withSession($session)->post(route('admin.cv-templates.publish', $template))->assertRedirect();
         $this->assertEquals($configuration, $template->versions()->where('status', 'published')->sole()->configuration);
-        $this->assertCount(7, app(CvTemplateCatalog::class)->published());
+        $this->assertCount(8, app(CvTemplateCatalog::class)->published());
     }
 
     public function test_admin_can_duplicate_publish_retire_and_reactivate_template(): void
