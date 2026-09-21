@@ -49,6 +49,19 @@ final class CvShareLinks
         return $link;
     }
 
+    public function publicUrl(CvShareLink $link): ?string
+    {
+        $token = $link->safeToken();
+        if ($token === null) {
+            return null;
+        }
+
+        $name = (string) ($link->revision?->snapshot['professional_name'] ?? 'alumni-farmasi');
+        $slug = Str::slug($name) ?: 'alumni-farmasi';
+
+        return route('public-cv.named', ['slug' => $slug, 'token' => $token]);
+    }
+
     private function newToken(): string
     {
         return rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');

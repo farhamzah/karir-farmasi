@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Cv\CareerCvProjection;
 use App\Cv\CvPublisher;
+use App\Cv\CvShareLinks;
 use App\Data\CareerActor;
 use App\Models\CareerProfile;
 use App\Policies\CareerCvPolicy;
@@ -13,7 +14,7 @@ use Inertia\Response;
 
 class CareerCvPreviewController extends Controller
 {
-    public function show(Request $request, int $cv, CareerCvProjection $projection, CareerCvPolicy $policy, CvPublisher $publisher): Response
+    public function show(Request $request, int $cv, CareerCvProjection $projection, CareerCvPolicy $policy, CvPublisher $publisher, CvShareLinks $links): Response
     {
         $actor = $request->attributes->get(CareerActor::class);
         $profile = CareerProfile::where('core_user_id', $actor->coreUserId)->firstOrFail();
@@ -32,7 +33,7 @@ class CareerCvPreviewController extends Controller
                 'has_unpublished_changes' => $latest !== null && $latest->content_checksum !== $publisher->draftChecksum($careerCv),
             ],
             'shareLinks' => $careerCv->shareLinks
-                ->map(function ($link) {
+                ->map(function ($link) use ($links) {
                     $token = $link->safeToken();
 
                     return [
@@ -45,7 +46,7 @@ class CareerCvPreviewController extends Controller
                         'revision_number' => $link->revision?->revision_number,
                         'view_count' => $link->view_count,
                         'last_viewed_at' => $link->last_viewed_at?->toAtomString(),
-                        'url' => $token === null ? null : route('public-cv.show', $token),
+                        'url' => $links->publicUrl($link),
                         'token_available' => $token !== null,
                     ];
                 })

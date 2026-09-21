@@ -155,7 +155,9 @@ Route::get('/status/{reference}', [RegistrationStatusController::class, 'show'])
 Route::prefix('s')->name('public-cv.')->middleware('throttle:60,1')->group(function () {
     Route::get('/{token}', [PublicCvController::class, 'show'])->name('show');
     Route::get('/{token}/photo', [PublicCvController::class, 'photo'])->name('photo');
+    Route::get('/{token}/preview.png', [PublicCvController::class, 'previewImage'])->name('preview-image');
     Route::get('/{token}/download.pdf', [CareerCvExportController::class, 'publicPdf'])->middleware('throttle:12,1')->name('pdf');
+    Route::get('/{slug}/{token}', [PublicCvController::class, 'showNamed'])->name('named');
 });
 
 Route::get('/dashboard', CandidateDashboardController::class)

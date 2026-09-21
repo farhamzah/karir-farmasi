@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Cv\CareerCvProjection;
 use App\Cv\CareerCvWriter;
 use App\Cv\CvFieldVisibility;
+use App\Cv\CvShareLinks;
 use App\Cv\CvTemplateCatalog;
 use App\Data\CareerActor;
 use App\Http\Requests\SaveCareerCvRequest;
@@ -18,15 +19,20 @@ use Inertia\Response;
 
 class CareerCvController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, CvShareLinks $links): Response
     {
         $profile = $this->profile($request);
-        $cvs = $profile?->cvs()->with('templateVersion.template')->latest('updated_at')->get()->map(fn ($cv) => [
-            'id' => $cv->id, 'name' => $cv->name, 'status' => $cv->status,
-            'template' => $cv->templateVersion->template->name, 'template_key' => $cv->templateVersion->template->key,
-            'version' => $cv->templateVersion->version,
-            'updated_at' => $cv->updated_at->toAtomString(),
-        ])->all() ?? [];
+        $cvs = $profile?->cvs()->with(['templateVersion.template', 'shareLinks.revision'])->latest('updated_at')->get()->map(function ($cv) use ($links) {
+            $share = $cv->shareLinks->first(fn ($link) => $link->accessible() && $link->safeToken() !== null);
+
+            return [
+                'id' => $cv->id, 'name' => $cv->name, 'status' => $cv->status,
+                'template' => $cv->templateVersion->template->name, 'template_key' => $cv->templateVersion->template->key,
+                'version' => $cv->templateVersion->version,
+                'updated_at' => $cv->updated_at->toAtomString(),
+                'share_url' => $share ? $links->publicUrl($share) : null,
+            ];
+        })->all() ?? [];
 
         return Inertia::render('Cv/Index', ['profileReady' => $profile !== null, 'cvs' => $cvs]);
     }

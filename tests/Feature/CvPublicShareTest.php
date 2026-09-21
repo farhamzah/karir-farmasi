@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Cv\CvPublisher;
 use App\Cv\CvShareLinks;
+use App\Cv\CvSocialPreview;
 use App\Models\CareerCv;
 use App\Models\CvShareLink;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -31,6 +32,48 @@ class CvPublicShareTest extends TestCase
         $this->assertNotNull($link->fresh()->last_viewed_at);
         $this->assertFalse(Schema::hasColumn('cv_share_links', 'ip_address'));
         $this->assertFalse(Schema::hasColumn('cv_share_links', 'user_agent'));
+    }
+
+    public function test_saved_share_link_survives_a_new_session_and_has_named_social_metadata(): void
+    {
+        [$cv, $link, $token] = $this->publishedShare();
+        $owner = ['core_principal' => $this->principal()];
+
+        $preview = $this->withSession($owner)->get(route('cv.preview', $cv));
+        $preview->assertOk()->assertInertia(fn ($page) => $page->component('Cv/Preview')
+            ->where('shareLinks.0.active', true)
+            ->where('shareLinks.0.token_available', true)
+            ->where('shareLinks.0.url', route('public-cv.named', ['slug' => 'alya-nur-sintetis', 'token' => $token])));
+
+        $this->withSession(['core_principal' => null])->get(route('cv.index'))->assertRedirect();
+        $this->withSession($owner)->get(route('cv.index'))->assertOk()->assertInertia(fn ($page) => $page
+            ->component('Cv/Index')
+            ->where('cvs.0.share_url', route('public-cv.named', ['slug' => 'alya-nur-sintetis', 'token' => $token])));
+
+        $response = $this->get(route('public-cv.named', ['slug' => 'alya-nur-sintetis', 'token' => $token]));
+        $response->assertOk();
+        $html = $response->getContent();
+        $this->assertStringContainsString('CV Alya Nūr Sintetis | SAFA KARIR', $html);
+        $this->assertStringContainsString('property="og:image"', $html);
+        $this->assertStringContainsString(route('public-cv.preview-image', $token), $html);
+        $this->assertStringContainsString('property="og:url"', $html);
+        $this->assertStringNotContainsString('login@fixture.invalid', $html);
+        $this->get(route('public-cv.show', $token))->assertOk();
+    }
+
+    public function test_social_preview_is_a_public_image_for_active_links_only(): void
+    {
+        if (! config('cv_exports.chromium_path')) {
+            $this->markTestSkipped('Chromium is required to render the social preview.');
+        }
+
+        [$cv, $link, $token] = $this->publishedShare();
+        $this->get(route('public-cv.preview-image', $token))->assertOk()->assertHeader('Content-Type', 'image/png');
+        $image = app(CvSocialPreview::class)->image($link->revision);
+        $this->assertSame([1200, 630], array_slice(getimagesize($image), 0, 2));
+
+        $link->update(['active' => false]);
+        $this->get(route('public-cv.preview-image', $token))->assertNotFound();
     }
 
     public function test_token_is_opaque_and_disable_expiry_and_rotation_revoke_access(): void
