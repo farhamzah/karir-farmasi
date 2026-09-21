@@ -19,7 +19,7 @@ final class CvPublisher
             $snapshot = $this->publicSnapshot($this->projection->preview($locked));
             $checksum = hash('sha256', json_encode($snapshot, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
             $number = ((int) $locked->publishedRevisions()->max('revision_number')) + 1;
-            [$photoPath, $photoMime] = $this->snapshotPhoto($locked, $number);
+            [$photoPath, $photoMime] = ($snapshot['has_photo'] ?? false) ? $this->snapshotPhoto($locked, $number) : [null, null];
 
             $revision = $locked->publishedRevisions()->create([
                 'public_id' => (string) Str::uuid(),

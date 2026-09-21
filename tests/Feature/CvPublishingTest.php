@@ -16,6 +16,10 @@ class CvPublishingTest extends TestCase
     public function test_publish_creates_immutable_revision_and_explicit_update_moves_following_link(): void
     {
         $profile = $this->profile();
+        $experience = $profile->experiences()->create([
+            'type' => 'work', 'title' => 'Apoteker Klinik', 'organization' => 'Rumah Sakit Sintetis',
+            'description' => 'Menangani pelayanan kefarmasian.', 'sort_order' => 0,
+        ]);
         $session = ['core_principal' => $this->principal()];
         $this->withSession($session)->post(route('cv.store'), $this->cvPayload($profile));
         $cv = CareerCv::sole();
@@ -24,6 +28,7 @@ class CvPublishingTest extends TestCase
         $first = CvPublishedRevision::sole();
         $this->assertSame(1, $first->revision_number);
         $this->assertSame('Apoteker Klinik', $first->snapshot['headline']);
+        $this->assertSame('Menangani pelayanan kefarmasian.', collect($first->snapshot['sections'])->firstWhere('key', 'experience')['items'][0]['description']);
         $this->assertSame(64, strlen($first->content_checksum));
 
         $this->withSession($session)->post(route('cv.shares.store', $cv), [
@@ -33,6 +38,7 @@ class CvPublishingTest extends TestCase
         $token = $link->token();
 
         $cv->update(['custom_headline' => 'Headline draft baru']);
+        $experience->update(['description' => 'Tanggung jawab terbaru dari profil.']);
         $this->get(route('public-cv.show', $token))->assertOk()->assertInertia(fn ($page) => $page
             ->component('Cv/Public')->where('cv.headline', 'Apoteker Klinik'));
         $this->assertSame($first->id, $link->fresh()->current_revision_id);
@@ -40,7 +46,9 @@ class CvPublishingTest extends TestCase
         $this->withSession($session)->post(route('cv.publish', $cv))->assertRedirect();
         $second = CvPublishedRevision::where('revision_number', 2)->sole();
         $this->assertSame('Apoteker Klinik', $first->fresh()->snapshot['headline']);
+        $this->assertSame('Menangani pelayanan kefarmasian.', collect($first->fresh()->snapshot['sections'])->firstWhere('key', 'experience')['items'][0]['description']);
         $this->assertSame('Headline draft baru', $second->snapshot['headline']);
+        $this->assertSame('Tanggung jawab terbaru dari profil.', collect($second->snapshot['sections'])->firstWhere('key', 'experience')['items'][0]['description']);
         $this->assertSame($second->id, $link->fresh()->current_revision_id);
         $this->get(route('public-cv.show', $token))->assertOk()->assertInertia(fn ($page) => $page->where('cv.headline', 'Headline draft baru'));
 
@@ -89,5 +97,28 @@ class CvPublishingTest extends TestCase
         Storage::disk('career_private')->assertMissing($snapshotPath);
         $this->assertDatabaseCount('cv_published_revisions', 0);
         $this->assertDatabaseCount('cv_share_links', 0);
+    }
+
+    public function test_hidden_photo_is_not_copied_or_served_from_the_public_revision(): void
+    {
+        Storage::fake('career_private');
+        $profile = $this->profile();
+        Storage::disk('career_private')->put('profiles/source/private-photo.jpg', 'private-photo-bytes');
+        $profile->update(['photo_path' => 'profiles/source/private-photo.jpg']);
+        $payload = $this->cvPayload($profile, 'cv-02');
+        $payload['field_visibility'] = ['photo' => false, 'city' => true, 'email' => true, 'whatsapp' => false, 'linkedin_url' => false, 'portfolio_url' => false];
+        $this->withSession(['core_principal' => $this->principal()])->post(route('cv.store'), $payload)->assertRedirect()->assertSessionHasNoErrors();
+
+        $cv = CareerCv::sole();
+        $this->withSession(['core_principal' => $this->principal()])->post(route('cv.publish', $cv))->assertRedirect();
+        $revision = CvPublishedRevision::sole();
+        $this->assertFalse($revision->snapshot['has_photo']);
+        $this->assertNull($revision->photo_path);
+
+        $this->withSession(['core_principal' => $this->principal()])->post(route('cv.shares.store', $cv), []);
+        $token = $cv->shareLinks()->sole()->token();
+        $this->get(route('public-cv.show', $token))->assertOk()->assertInertia(fn ($page) => $page->where('photoUrl', null));
+        $this->get(route('public-cv.photo', $token))->assertNotFound();
+        Storage::disk('career_private')->assertExists('profiles/source/private-photo.jpg');
     }
 }

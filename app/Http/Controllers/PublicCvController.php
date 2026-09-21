@@ -31,8 +31,9 @@ final class PublicCvController extends Controller
                 'url' => $url,
                 'allow_pdf_download' => $link->allow_pdf_download,
                 'pdf_url' => $link->allow_pdf_download ? route('public-cv.pdf', $token) : null,
+                'published_at' => $link->revision->published_at?->toAtomString(),
             ],
-            'photoUrl' => $link->revision->photo_path ? route('public-cv.photo', $token) : null,
+            'photoUrl' => ($snapshot['has_photo'] ?? false) && $link->revision->photo_path ? route('public-cv.photo', $token) : null,
         ])->rootView('cv.public')->withViewData('social', [
             'title' => 'CV '.$name.' | SAFA KARIR',
             'name' => $name,
@@ -62,7 +63,7 @@ final class PublicCvController extends Controller
     public function photo(string $token, CvShareLinks $links): StreamedResponse
     {
         $revision = $links->resolve($token)->revision;
-        abort_if($revision->photo_path === null || ! Storage::disk('career_private')->exists($revision->photo_path), 404);
+        abort_if(! ($revision->snapshot['has_photo'] ?? false) || $revision->photo_path === null || ! Storage::disk('career_private')->exists($revision->photo_path), 404);
 
         return Storage::disk('career_private')->response($revision->photo_path, null, [
             'Cache-Control' => 'private, max-age=300', 'X-Content-Type-Options' => 'nosniff',

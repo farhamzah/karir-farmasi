@@ -70,7 +70,7 @@ class TalentProfileController extends Controller
 
     private function render(CareerProfile $profile, string $audience): Response
     {
-        $profile->load(['educations', 'experiences', 'skills', 'certifications', 'projects', 'publications', 'languages', 'jobPreference', 'eventRegistrations.event.topics']);
+        $profile->load(['educations', 'experiences', 'skills', 'certifications', 'organizations', 'projects', 'publications', 'languages', 'jobPreference', 'eventRegistrations.event.topics']);
 
         return Inertia::render('Talent/Profile', ['audience' => $audience, 'profile' => [
             'professional_name' => $profile->professional_name ?: 'Alumni Farmasi', 'headline' => $profile->headline,
@@ -78,10 +78,11 @@ class TalentProfileController extends Controller
                 ? route($audience === 'company' ? 'company.talent.photo' : 'internal.talent.photo', $profile->talent_reference)
                 : null,
             'summary' => $profile->professional_summary, 'city' => $profile->city, 'open_to_work' => $profile->open_to_work,
-            'educations' => $profile->educations->map->only(['institution_name', 'program_name', 'degree', 'end_year'])->all(),
-            'experiences' => $profile->experiences->map->only(['type', 'organization', 'title', 'location', 'description'])->all(),
+            'educations' => $profile->educations->map->only(['institution_name', 'program_name', 'degree', 'start_year', 'end_year', 'status'])->all(),
+            'experiences' => $profile->experiences->map->only(['type', 'organization', 'title', 'location', 'start_date', 'end_date', 'currently_active', 'description'])->all(),
             'skills' => $profile->skills->pluck('name')->all(),
             'certifications' => $profile->certifications->map->only(['title', 'issuer', 'issue_date'])->all(),
+            'organizations' => $profile->organizations->map->only(['organization', 'role', 'start_date', 'end_date', 'description'])->all(),
             'events' => $profile->eventRegistrations->whereNotNull('completed_at')->map(fn ($item) => ['title' => $item->event?->title, 'role' => $item->role, 'topics' => $item->event?->topics?->pluck('label')->all() ?? []])->values()->all(),
             'projects' => $profile->projects->map->only(['title', 'category', 'description'])->all(),
             'publications' => $profile->publications->map->only(['title', 'publication_name', 'published_on'])->all(),

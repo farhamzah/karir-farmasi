@@ -35,6 +35,9 @@ class TalentSearchPrivacyTest extends TestCase
     public function test_verified_company_finds_structured_alias_and_event_tags_without_private_fields(): void
     {
         $profile = $this->indexedProfile();
+        $profile->organizations()->create(['organization' => 'Himpunan Farmasi', 'role' => 'Ketua Divisi', 'description' => 'Mengelola kegiatan mahasiswa.']);
+        $profile->projects()->create(['title' => 'Edukasi Obat', 'description' => 'Materi penggunaan obat.', 'project_url' => 'https://private.example/project']);
+        $profile->publications()->create(['title' => 'Kajian Farmasi', 'publication_name' => 'Jurnal Sintetis', 'url' => 'https://private.example/article']);
         $companyUser = CompanyUser::factory()->for(Company::factory()->verified())->create();
 
         $this->withSession(['company_user_id' => $companyUser->id])->get(route('company.talent.index', ['q' => 'GMP']))
@@ -46,7 +49,11 @@ class TalentSearchPrivacyTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page->has('results', 1));
         $this->withSession(['company_user_id' => $companyUser->id])->get(route('company.talent.show', $profile->talent_reference))
             ->assertInertia(fn (Assert $page) => $page->component('Talent/Profile')->missing('profile.professional_email')
-                ->missing('profile.whatsapp')->missing('profile.core_user_id')->missing('profile.certifications.0.attachment_path'));
+                ->missing('profile.whatsapp')->missing('profile.core_user_id')->missing('profile.certifications.0.attachment_path')
+                ->where('profile.organizations.0.role', 'Ketua Divisi')
+                ->where('profile.projects.0.title', 'Edukasi Obat')->missing('profile.projects.0.project_url')
+                ->where('profile.publications.0.title', 'Kajian Farmasi')->missing('profile.publications.0.url')
+                ->where('profile.educations.0.end_year', 2026));
         $this->assertDatabaseHas('talent_access_audits', ['action' => 'talent.profile.view', 'company_id' => $companyUser->company_id]);
     }
 

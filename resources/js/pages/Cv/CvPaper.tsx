@@ -71,24 +71,43 @@ function shortSectionTitle(title: string): string {
     return title.replace('Sertifikat Event', 'Sertifikat').replace('Preferensi Karier', 'Minat Karier');
 }
 
+function itemTitle(sectionKey: string, item: CvItem): string {
+    if (sectionKey === 'education') {
+        const program = String(item.program_name ?? '').trim();
+        const degree = String(item.degree ?? '').trim();
+        return program && degree && !program.toLocaleLowerCase('id-ID').includes(degree.toLocaleLowerCase('id-ID'))
+            ? `${program} · ${degree}` : program || degree;
+    }
+    return (primaryFields[sectionKey] ?? ['title', 'name']).map(key => item[key]).filter(Boolean).join(' · ');
+}
+
+function displayValue(key: string, value: CvItem[string]): string {
+    if (key === 'status') return ({ graduated: 'Lulus', studying: 'Sedang ditempuh', paused: 'Ditunda' } as Record<string, string>)[String(value)] ?? String(value);
+    return String(value);
+}
+
 function itemCard(sectionKey: string, item: CvItem, index: number): ReactNode {
     const primary = primaryFields[sectionKey] ?? ['title', 'name'];
-    const title = primary.map(key => item[key]).filter(Boolean).join(' · ');
+    const title = itemTitle(sectionKey, item);
     const description = typeof item.description === 'string' ? item.description : null;
     const links: { href: string; label: string }[] = [];
     const metadata = Object.entries(item).filter(([key, value]) => {
-        if (['description', ...primary].includes(key) || value === null || value === '' || value === false) return false;
+        if (['description', 'doi', ...primary].includes(key) || value === null || value === '' || value === false) return false;
         if (['credential_url', 'project_url', 'url'].includes(key) && typeof value === 'string') {
             links.push({ href: value, label: linkLabel(key, value, item) });
             return false;
         }
         return typeof value !== 'boolean';
     });
+    if (typeof item.doi === 'string' && item.doi.trim()) {
+        const doi = item.doi.trim();
+        links.push({ href: doi.startsWith('https://') ? doi : `https://doi.org/${encodeURIComponent(doi)}`, label: 'Lihat DOI' });
+    }
 
     return <article className="cv-item-card" key={index}>
         {title && <h4>{title}</h4>}
         {metadata.length > 0 && <div className="cv-item-meta">{metadata.map(([key, value]) => <span key={key}>
-            {fieldLabels[key] && <small>{fieldLabels[key]}</small>}<b>{String(value)}</b>
+            {fieldLabels[key] && <small>{fieldLabels[key]}</small>}<b>{displayValue(key, value)}</b>
         </span>)}</div>}
         {description && <p className="cv-description">{description}</p>}
         {links.length > 0 && <div className="cv-item-links">{links.map(link => <LinkChip key={`${link.label}-${link.href}`} {...link} />)}</div>}
