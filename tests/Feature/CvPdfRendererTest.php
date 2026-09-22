@@ -19,13 +19,15 @@ class CvPdfRendererTest extends TestCase
             'template' => ['key' => 'cv-05'],
             'sections' => [
                 ['key' => 'summary', 'title' => 'Ringkasan Profesional', 'items' => [['description' => 'Apoteker dengan pengalaman layanan farmasi.']]],
-                ['key' => 'education', 'title' => 'Pendidikan', 'items' => [['program_name' => 'Farmasi', 'degree' => 'S1', 'institution_name' => 'Universitas Sintetis']]],
+                ['key' => 'education', 'title' => 'Pendidikan', 'items' => [['program_name' => 'Farmasi', 'degree' => 'S1', 'institution_name' => 'Universitas Sintetis', 'gpa' => '3.78']]],
             ],
         ];
         $html = view('cv.document', ['cv' => $snapshot, 'photoDataUri' => null])->render();
         $this->assertStringContainsString('<!doctype html>', $html);
         $this->assertStringContainsString('Alya Sintetis', $html);
         $this->assertStringContainsString('Universitas Sintetis', $html);
+        $this->assertStringContainsString('IPK', $html);
+        $this->assertStringContainsString('3.78', $html);
 
         $path = app(ChromiumCvPdfRenderer::class)->render($snapshot);
 

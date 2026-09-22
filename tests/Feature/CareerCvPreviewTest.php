@@ -47,7 +47,7 @@ class CareerCvPreviewTest extends TestCase
         $profile = $this->profile();
         $profile->update(['professional_name' => str_repeat('Alya Maharani ', 14).'Ž', 'professional_email' => str_repeat('alumni.', 20).'@fixture.invalid',
             'linkedin_url' => 'https://fixture.invalid/'.str_repeat('portofolio-', 20), 'photo_path' => 'synthetic/portrait.jpg']);
-        $profile->educations()->create(['institution_name' => 'Universitas Buana Perjuangan Karawang', 'program_name' => 'Farmasi']);
+        $profile->educations()->create(['institution_name' => 'Universitas Buana Perjuangan Karawang', 'program_name' => 'Farmasi', 'gpa' => '3.78']);
         foreach (['work', 'internship', 'pkpa', 'volunteer'] as $index => $type) {
             $profile->experiences()->create(['type' => $type, 'organization' => 'Organisasi Sintetis '.$index, 'title' => 'Peran '.$index]);
         }
@@ -59,7 +59,8 @@ class CareerCvPreviewTest extends TestCase
         $payload = $this->cvPayload($profile, 'cv-02', 'CV Lengkap');
         $this->withSession(['core_principal' => $this->principal()])->post(route('cv.store'), $payload);
         $this->withSession(['core_principal' => $this->principal()])->get(route('cv.preview', CareerCv::sole()))->assertInertia(fn (Assert $page) => $page
-            ->where('cv.has_photo', true)->has('cv.sections', 10)->where('cv.professional_name', fn ($name) => str_ends_with($name, 'Ž')));
+            ->where('cv.has_photo', true)->has('cv.sections', 10)->where('cv.professional_name', fn ($name) => str_ends_with($name, 'Ž'))
+            ->where('cv.sections', fn ($sections) => collect($sections)->firstWhere('key', 'education')['items'][0]['gpa'] === '3.78'));
     }
 
     public function test_job_preferences_are_optional_cv_content_controlled_by_alumni(): void

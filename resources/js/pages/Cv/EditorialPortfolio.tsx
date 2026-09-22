@@ -5,7 +5,7 @@ type Actions = { pdfUrl?: string | null; onShare?: () => void; onPrint?: () => v
 type PortfolioLink = { href: string; label: string; note: string; icon: string };
 
 const labels: Record<string, string> = {
-    institution_name: 'Institusi', program_name: 'Program', degree: 'Gelar', organization: 'Organisasi', type: 'Jenis',
+    institution_name: 'Institusi', program_name: 'Program', degree: 'Gelar', gpa: 'IPK', organization: 'Organisasi', type: 'Jenis',
     location: 'Lokasi', category: 'Fokus', level: 'Tingkat', start_date: 'Mulai', end_date: 'Selesai', start_year: 'Mulai',
     end_year: 'Selesai', status: 'Status', issuer: 'Penerbit', issue_date: 'Terbit', expiry_date: 'Berlaku hingga',
     credential_id: 'ID kredensial', role: 'Peran', proficiency: 'Kemahiran', publication_name: 'Media', published_on: 'Terbit',

@@ -82,6 +82,7 @@ final class CvDocxExporter
     private function displayValue(string $field, string $value): string
     {
         return match ($field) {
+            'gpa' => 'IPK '.$value,
             'credential_url' => 'Sertifikat',
             'project_url' => 'Proyek',
             'url' => str_contains(strtolower($value), 'scholar.google') ? 'Google Scholar' : 'Publikasi',

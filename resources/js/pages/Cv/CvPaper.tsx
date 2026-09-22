@@ -29,7 +29,7 @@ export type CvPaperData = {
 };
 
 const fieldLabels: Record<string, string> = {
-    institution_name: 'Institusi', program_name: 'Program studi', degree: 'Gelar', organization: 'Organisasi',
+    institution_name: 'Institusi', program_name: 'Program studi', degree: 'Gelar', gpa: 'IPK', organization: 'Organisasi',
     type: 'Jenis', location: 'Lokasi', category: 'Fokus', level: 'Tingkat', start_date: 'Mulai', end_date: 'Selesai',
     start_year: 'Mulai', end_year: 'Selesai', status: 'Status', issuer: 'Penerbit', issue_date: 'Terbit',
     expiry_date: 'Berlaku hingga', credential_id: 'ID kredensial', role: 'Peran', proficiency: 'Kemahiran',

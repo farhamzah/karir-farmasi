@@ -84,7 +84,7 @@ final class CareerCvProjection
     private function safeItem(CvSection $section, Model $item): array
     {
         $fields = match ($section) {
-            CvSection::Education => ['institution_name', 'program_name', 'degree', 'start_year', 'end_year', 'status'],
+            CvSection::Education => ['institution_name', 'program_name', 'degree', 'gpa', 'start_year', 'end_year', 'status'],
             CvSection::Experience => ['type', 'organization', 'title', 'location', 'start_date', 'end_date', 'currently_active', 'description'],
             CvSection::Skills => ['name', 'category', 'level'], CvSection::Certifications => ['title', 'issuer', 'issue_date', 'expiry_date', 'credential_id', 'credential_url'],
             CvSection::Organizations => ['organization', 'role', 'start_date', 'end_date', 'description'],

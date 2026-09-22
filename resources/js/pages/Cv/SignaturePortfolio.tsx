@@ -19,7 +19,7 @@ const primaryFields: Record<string, string[]> = {
     skills: ['name'], languages: ['language'], preferences: ['target_roles'], summary: [],
 };
 const metadataLabels: Record<string, string> = {
-    institution_name: 'Institution', organization: 'Organization', issuer: 'Issuer', organizer: 'Organizer', location: 'Location',
+    institution_name: 'Institution', gpa: 'GPA', organization: 'Organization', issuer: 'Issuer', organizer: 'Organizer', location: 'Location',
     start_date: 'From', end_date: 'Until', start_year: 'From', end_year: 'Until', issue_date: 'Issued', published_on: 'Published',
     date: 'Date', role: 'Role', category: 'Category', event_type: 'Type', level: 'Level', proficiency: 'Level', status: 'Status',
     degree: 'Degree', doi: 'DOI', topics: 'Topics', certificate_number: 'Certificate', employment_types: 'Work type',

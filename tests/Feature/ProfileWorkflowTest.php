@@ -52,6 +52,26 @@ class ProfileWorkflowTest extends TestCase
         $this->assertEqualsCanonicalizing(['work', 'internship', 'pkpa', 'kp', 'volunteer', 'other'], $profile->experiences->pluck('type')->all());
     }
 
+    public function test_education_gpa_is_optional_and_must_use_a_valid_four_point_scale(): void
+    {
+        $session = ['core_principal' => $this->principal()];
+        $education = ['institution_name' => 'Universitas Sintetis', 'program_name' => 'Farmasi'];
+
+        $this->withSession($session)->post(route('profile.sections.store', 'education'), [...$education, 'gpa' => '3.78'])
+            ->assertRedirect();
+        $record = CareerProfile::sole()->educations()->sole();
+        $this->assertSame('3.78', $record->gpa);
+
+        foreach (['4.01', '3.789'] as $invalid) {
+            $this->withSession($session)->post(route('profile.sections.store', 'education'), [...$education, 'gpa' => $invalid])
+                ->assertSessionHasErrors('gpa');
+        }
+
+        $this->withSession($session)->post(route('profile.sections.update', ['education', $record->id]), [...$education, 'gpa' => ''])
+            ->assertRedirect();
+        $this->assertNull($record->fresh()->gpa);
+    }
+
     public function test_remaining_sections_and_confirmation_are_persisted(): void
     {
         $session = ['core_principal' => $this->principal()];
