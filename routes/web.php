@@ -152,11 +152,11 @@ Route::get('/status', [RegistrationStatusController::class, 'index'])->name('reg
 Route::get('/status/{reference}', [RegistrationStatusController::class, 'show'])
     ->middleware('throttle:30,1')->name('registration-status.show');
 
-Route::prefix('s')->name('public-cv.')->middleware('throttle:60,1')->group(function () {
+Route::prefix('s')->name('public-cv.')->middleware('throttle:60,1,public-cv:')->group(function () {
     Route::get('/{token}', [PublicCvController::class, 'show'])->name('show');
     Route::get('/{token}/photo', [PublicCvController::class, 'photo'])->name('photo');
     Route::get('/{token}/preview.png', [PublicCvController::class, 'previewImage'])->name('preview-image');
-    Route::get('/{token}/download.pdf', [CareerCvExportController::class, 'publicPdf'])->middleware('throttle:12,1')->name('pdf');
+    Route::get('/{token}/download.pdf', [CareerCvExportController::class, 'publicPdf'])->middleware('throttle:12,1,public-cv-pdf:')->name('pdf');
     Route::get('/{slug}/{token}', [PublicCvController::class, 'showNamed'])->name('named');
 });
 
