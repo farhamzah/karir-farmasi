@@ -36,7 +36,7 @@ final class CvSocialPreview
         File::put($html, view('cv.social-preview', ['cv' => $revision->snapshot, 'photo' => $photo])->render());
 
         $process = new Process([
-            $browser, '--headless=old', '--disable-gpu', '--disable-dev-shm-usage', '--no-sandbox',
+            $browser, '--headless=new', '--disable-gpu', '--disable-dev-shm-usage', '--no-sandbox',
             '--disable-extensions', '--disable-sync', '--no-first-run', '--allow-file-access-from-files',
             '--hide-scrollbars', '--force-device-scale-factor=1', '--window-size=1200,630',
             '--user-data-dir='.$work.'/browser-profile', '--screenshot='.$output,

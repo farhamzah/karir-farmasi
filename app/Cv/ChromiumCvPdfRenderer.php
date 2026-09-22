@@ -3,7 +3,6 @@
 namespace App\Cv;
 
 use App\Contracts\CvPdfRenderer;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
 use RuntimeException;
 use Symfony\Component\Process\Process;
@@ -22,10 +21,10 @@ final class ChromiumCvPdfRenderer implements CvPdfRenderer
         File::ensureDirectoryExists($directory);
         $htmlPath = $directory.'/document.html';
         $pdfPath = $exportDirectory.'/'.bin2hex(random_bytes(12)).'.pdf';
-        File::put($htmlPath, Blade::render('cv.document', ['cv' => $snapshot, 'photoDataUri' => $photoDataUri]));
+        File::put($htmlPath, view('cv.document', ['cv' => $snapshot, 'photoDataUri' => $photoDataUri])->render());
 
         $process = new Process([
-            $executable, '--headless=old', '--disable-gpu', '--disable-software-rasterizer',
+            $executable, '--headless=new', '--disable-gpu', '--disable-software-rasterizer',
             '--disable-dev-shm-usage', '--no-sandbox', '--no-pdf-header-footer',
             '--disable-extensions', '--disable-sync', '--no-first-run', '--allow-file-access-from-files',
             '--user-data-dir='.$directory.'/browser-profile', '--print-to-pdf='.$pdfPath,
