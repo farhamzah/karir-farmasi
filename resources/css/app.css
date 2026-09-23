@@ -232,6 +232,8 @@ input:focus,textarea:focus { outline:2px solid #90b7a4; border-color:#1f6b4f; }
 .cv-doc-section h3 { margin:0;padding:0 0 9px;border:0!important;background:none!important;color:var(--ink)!important;font:750 12px/1.2 Inter,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase; }
 .cv-section-items { display:grid;gap:12px; }.cv-item-card { position:relative;display:block!important;padding:0 0 12px;border-bottom:1px solid #edf0ee;break-inside:avoid; }
 .cv-item-card:last-child { padding-bottom:0;border-bottom:0; }.cv-item-card h4 { margin:0 0 5px;color:var(--ink);font:700 13px/1.35 Inter,system-ui,sans-serif; }
+.cv-item-organization { margin:0 0 3px;color:#41574b;font:500 11px/1.45 Inter,system-ui,sans-serif; }
+.cv-item-period { margin:0 0 5px;color:var(--accent);font:700 9px/1.4 Inter,system-ui,sans-serif;letter-spacing:.04em; }
 .cv-item-meta { display:flex;flex-wrap:wrap;gap:5px 15px; }.cv-item-meta>span { position:relative;display:flex!important;gap:5px;align-items:baseline;font:500 10px/1.5 Inter,system-ui,sans-serif!important;color:var(--muted); }
 .cv-item-meta>span:not(:last-child)::after { content:"";position:absolute;right:-8px;top:7px;width:2px;height:2px;border-radius:50%;background:#a9b5af; }
 .cv-item-meta small { display:inline!important;color:#87958e!important;font:700 7px/1 Inter,sans-serif!important;letter-spacing:.06em;text-transform:uppercase; }.cv-item-meta b { font-weight:550; }
@@ -263,6 +265,16 @@ input:focus,textarea:focus { outline:2px solid #90b7a4; border-color:#1f6b4f; }
 .cv-04 .cv-document-body { margin:0;padding:60px 44px;gap:25px; }.cv-04 .cv-section-heading { border-color:#d7ded9; }.cv-04 .cv-section-heading>span { border-radius:50%;background:#173c30;color:#f0d485; }.cv-04 .cv-doc-section h3 { color:#173c30!important; }
 
 .cv-paper.cv-05 { --ink:#203949;--accent:#346b88;--soft:#e8f1f6;border:0;background:#fcfdfe;font-family:"Palatino Linotype",Palatino,Georgia,serif; }
+.cv-paper:is(.cv-01,.cv-02,.cv-03,.cv-04,.cv-05) .section-summary .cv-description { font-style:normal; }
+.cv-paper:is(.cv-01,.cv-02,.cv-03,.cv-04,.cv-05) .section-experience .cv-item-card { padding-bottom:14px; }
+.cv-paper:is(.cv-01,.cv-02,.cv-03,.cv-04,.cv-05) .section-experience .cv-item-organization { color:#455d50;font-size:12px;line-height:1.45; }
+.cv-paper:is(.cv-01,.cv-02,.cv-03,.cv-04,.cv-05) .section-experience .cv-item-period { margin:4px 0 7px;font-size:10px; }
+.cv-paper:is(.cv-01,.cv-02,.cv-03,.cv-04,.cv-05) .cv-document-body { gap:30px; }
+.cv-paper:is(.cv-01,.cv-02,.cv-03,.cv-04,.cv-05) .cv-section-items { gap:16px; }
+.cv-paper:is(.cv-01,.cv-02,.cv-03,.cv-04,.cv-05) .cv-description { font-size:12px;line-height:1.58; }
+.cv-paper:is(.cv-01,.cv-02,.cv-03,.cv-04,.cv-05) .cv-item-meta>span { font-size:11px!important; }
+.cv-paper:is(.cv-01,.cv-02,.cv-03,.cv-04,.cv-05) .cv-item-card h4 { font-size:14px; }
+.cv-paper:is(.cv-01,.cv-02,.cv-03,.cv-04,.cv-05) .section-summary .cv-description { font-size:13px;line-height:1.65; }
 .cv-05::before { height:10px;background:linear-gradient(90deg,#173f5a 0 38%,#63a3c5 38% 73%,#d8b85f 73%); }.cv-05 .cv-document-header { padding:12px 0 34px;border-bottom:3px double #7692a1; }.cv-05 .cv-document-header h1 { color:#17394f;font-size:49px; }.cv-05 .cv-document-header h2 { color:#476273;font-family:Georgia,serif;font-style:italic; }.cv-05 .cv-contact { font-family:Inter,sans-serif; }.cv-05 .cv-section-heading>span { background:#315e77; }.cv-05 .cv-doc-section h3 { color:#254e66!important;font-family:Georgia,serif;letter-spacing:.1em; }.cv-05 .cv-item-card h4 { color:#203f52;font-family:Georgia,serif;font-size:13.5px; }.cv-05 .section-publications .cv-item-card { padding-left:16px;border-left:2px solid #acc5d2;border-bottom:0; }
 
 .public-cv-page { background:radial-gradient(circle at 10% 0,#dcebe3 0,transparent 30%),linear-gradient(135deg,#f5f5ef,#e8eeea); }.public-utility { margin-bottom:30px;padding:10px 12px 10px 14px;border:1px solid rgba(181,195,187,.7);border-radius:13px;background:rgba(255,255,255,.8);box-shadow:0 12px 34px rgba(23,54,42,.09);backdrop-filter:blur(16px); }.public-brand-mark { border-radius:9px;background:linear-gradient(145deg,#123e30,#2d775a);box-shadow:0 7px 18px rgba(22,70,51,.2); }.public-utility a,.public-utility button { border-radius:7px; }.public-intro { width:min(940px,calc(100% - 40px));margin-bottom:24px;padding:34px 38px;border-radius:16px;background:#173f32;color:#fff;box-shadow:0 17px 50px rgba(25,63,49,.17); }.public-intro h1 { color:#fff;font-size:clamp(30px,4vw,50px); }.public-intro .eyebrow { color:#dfc77f; }.social-share a { color:#dbe8e1; }.public-footer { width:min(940px,calc(100% - 40px));padding:22px 4px; }
@@ -694,7 +706,6 @@ input,textarea,select { min-height:45px;border:1px solid #cbd6d0;border-radius:9
 }
 
 /* Visual contract: CV-04 QA/QC portfolio, matched to owner reference image. */
-.cv-reference-note { display:none; }
 .cv-paper.cv-04,
 .cv-paper.cv-04.header-sidebar {
     --cv04-ink:#182c24;
@@ -783,13 +794,6 @@ input,textarea,select { min-height:45px;border:1px solid #cbd6d0;border-radius:9
     font:650 21px/1.22 Georgia,"Times New Roman",serif;
     overflow-wrap:break-word;
 }
-.cv-04 .cv-document-header h2::after {
-    content:"“Apoteker untuk kualitas hidup yang lebih baik.”";
-    display:block;
-    margin-top:16px;
-    color:#2a342f;
-    font:italic 18px/1.35 Georgia,"Times New Roman",serif;
-}
 .cv-04 .cv-document-header h2 + .cv-contact { margin-top:17px; }
 .cv-paper.cv-04 .cv-contact,
 .cv-paper.cv-04.header-sidebar .cv-contact {
@@ -835,25 +839,6 @@ input,textarea,select { min-height:45px;border:1px solid #cbd6d0;border-radius:9
     border-radius:5px;
     background:#d6e4da;
     font:500 15px/1 Georgia,"Times New Roman",serif;
-}
-.cv-04 .cv-reference-note {
-    position:relative;
-    z-index:1;
-    display:block;
-    justify-self:end;
-    max-width:160px;
-    padding-top:14px;
-    color:#20332b;
-    font:italic 18px/1.22 "Segoe Script","Bradley Hand ITC",cursive;
-    transform:rotate(-7deg);
-}
-.cv-04 .cv-reference-note::after {
-    content:"";
-    display:block;
-    width:48px;
-    height:2px;
-    margin:18px 0 0 auto;
-    background:var(--cv04-green);
 }
 .cv-paper.cv-04 .cv-document-body,
 .cv-paper.cv-04.header-sidebar .cv-document-body {
@@ -1618,18 +1603,6 @@ input,textarea,select { min-height:45px;border:1px solid #cbd6d0;border-radius:9
     .cv-04 .cv-document-header h2 {
         font-size:17px;
         overflow-wrap:break-word;
-    }
-    .cv-04 .cv-document-header h2::after {
-        margin-top:9px;
-        font-size:13px;
-    }
-    .cv-04 .cv-reference-note {
-        grid-column:1/-1;
-        justify-self:start;
-        max-width:none;
-        padding-top:4px;
-        font-size:14px;
-        transform:none;
     }
     .cv-paper.cv-04 .cv-contact,
     .cv-paper.cv-04.header-sidebar .cv-contact {

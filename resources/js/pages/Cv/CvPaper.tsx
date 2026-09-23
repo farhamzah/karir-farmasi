@@ -86,13 +86,16 @@ function displayValue(key: string, value: CvItem[string]): string {
     return String(value);
 }
 
-function itemCard(sectionKey: string, item: CvItem, index: number): ReactNode {
+function itemCard(sectionKey: string, item: CvItem, index: number, refinedExperience = false): ReactNode {
     const primary = primaryFields[sectionKey] ?? ['title', 'name'];
     const title = itemTitle(sectionKey, item);
     const description = typeof item.description === 'string' ? item.description : null;
+    const experience = refinedExperience && sectionKey === 'experience';
+    const organizationLine = experience ? [item.organization, item.location].filter(Boolean).map(String).join(' · ') : '';
+    const periodLine = experience ? [item.start_date, item.end_date || (item.currently_active ? 'Sekarang' : null)].filter(Boolean).map(String).join(' – ') : '';
     const links: { href: string; label: string }[] = [];
     const metadata = Object.entries(item).filter(([key, value]) => {
-        if (['description', 'doi', ...primary].includes(key) || value === null || value === '' || value === false) return false;
+        if (['description', 'doi', ...primary, ...(experience ? ['type', 'organization', 'location', 'start_date', 'end_date', 'currently_active'] : [])].includes(key) || value === null || value === '' || value === false) return false;
         if (['credential_url', 'project_url', 'url'].includes(key) && typeof value === 'string') {
             links.push({ href: value, label: linkLabel(key, value, item) });
             return false;
@@ -106,6 +109,8 @@ function itemCard(sectionKey: string, item: CvItem, index: number): ReactNode {
 
     return <article className="cv-item-card" key={index}>
         {title && <h4>{title}</h4>}
+        {organizationLine && <p className="cv-item-organization">{organizationLine}</p>}
+        {periodLine && <p className="cv-item-period">{periodLine}</p>}
         {metadata.length > 0 && <div className="cv-item-meta">{metadata.map(([key, value]) => <span key={key}>
             {fieldLabels[key] && <small>{fieldLabels[key]}</small>}<b>{displayValue(key, value)}</b>
         </span>)}</div>}
@@ -145,9 +150,10 @@ export default function CvPaper({ cv, photoUrl = '/profile/photo' }: { cv: CvPap
             .map(item => ({ href: String(item.credential_url), label: credentialLabel(item), icon: '▤' }))),
     ].filter((link): link is { href: string; label: string; icon: string } => Boolean(link));
     const sidebarSectionKeys = new Set(['skills', 'certifications', 'events', 'event_certificates', 'languages', 'preferences']);
+    const refinedExperience = ['cv-01', 'cv-02', 'cv-03', 'cv-04', 'cv-05'].includes(cv.template.key);
     const renderSection = (section: CvPaperData['sections'][number], sectionIndex: number) => <section id={'portfolio-'+section.key} className={`cv-doc-section section-${section.key}`} key={section.key}>
         <div className="cv-section-heading"><span>{String(sectionIndex + 1).padStart(2, '0')}</span><h3>{shortSectionTitle(section.title)}</h3></div>
-        <div className="cv-section-items">{section.items.map((item, index) => itemCard(section.key, item, index))}</div>
+        <div className="cv-section-items">{section.items.map((item, index) => itemCard(section.key, item, index, refinedExperience))}</div>
     </section>;
     if (cv.template.key === 'cv-08') {
         const leftKeys = new Set(['summary', 'education', 'experience']);
@@ -269,7 +275,6 @@ export default function CvPaper({ cv, photoUrl = '/profile/photo' }: { cv: CvPap
                     {contact.href ? <a href={contact.href} target={contact.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">{contact.label}</a> : contact.label}
                 </span>)}</div>
             </div>
-            <aside className="cv-reference-note" aria-hidden="true"><span>Kualitas hari ini untuk masa depan yang lebih sehat</span></aside>
         </header>
         {documentBody}
     </section>;

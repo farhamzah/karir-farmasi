@@ -7,6 +7,39 @@ use Tests\TestCase;
 
 class CvPdfRendererTest extends TestCase
 {
+    public function test_first_five_templates_show_experience_without_internal_field_labels_or_added_tagline(): void
+    {
+        foreach (range(1, 5) as $number) {
+            $html = view('cv.document', [
+                'cv' => [
+                    'professional_name' => 'Alumni Sintetis',
+                    'headline' => 'Quality Control',
+                    'template' => ['key' => sprintf('cv-%02d', $number)],
+                    'sections' => [[
+                        'key' => 'experience',
+                        'title' => 'Pengalaman',
+                        'items' => [[
+                            'title' => 'Quality Control',
+                            'type' => 'Pengalaman Kerja',
+                            'organization' => 'Laboratorium Sintetis',
+                            'location' => 'Karawang',
+                            'start_date' => 'Apr 2018',
+                            'end_date' => 'Feb 2020',
+                            'description' => 'Kalibrasi alat ukur dan dokumentasi hasil pengujian.',
+                        ]],
+                    ]],
+                ],
+                'photoDataUri' => null,
+            ])->render();
+
+            $this->assertStringContainsString('Laboratorium Sintetis · Karawang', $html);
+            $this->assertStringContainsString('Apr 2018 – Feb 2020', $html);
+            $this->assertStringNotContainsString('>Organisasi<', $html);
+            $this->assertStringNotContainsString('>Lokasi<', $html);
+            $this->assertStringNotContainsString('Apoteker untuk kualitas hidup yang lebih baik', $html);
+        }
+    }
+
     public function test_cv_document_is_rendered_as_a_real_pdf(): void
     {
         if (! config('cv_exports.chromium_path')) {
